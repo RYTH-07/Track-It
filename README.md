@@ -127,7 +127,7 @@ track-it/
 
 | Role | Owner |
 |------|-------|
-| Project Lead / Tester | [Your name] |
+| Project Lead / Tester | C RYTHAN |
 | Backend / Auth | TBD |
 | Core CRUD + SR Logic | TBD |
 | XP / Gamification | TBD |
