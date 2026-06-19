@@ -128,11 +128,11 @@ track-it/
 | Role | Owner |
 |------|-------|
 | Project Lead / Tester | C RYTHAN |
-| Backend / Auth | TBD |
-| Core CRUD + SR Logic | TBD |
-| XP / Gamification | TBD |
-| Frontend / UI | TBD |
-| Landing Page | TBD |
+| Backend / Auth | SISHIR |
+| Core CRUD + SR Logic | VETRIVEL |
+| XP / Gamification | DINAKARAN |
+| Frontend / UI | THIRUYAZHINI / DEEPSIKHA |
+| Landing Page | NAVYASREE |
 
 ---
 
