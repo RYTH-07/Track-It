@@ -130,7 +130,7 @@ track-it/
 | Project Lead / Tester | C RYTHAN |
 | Backend / Auth | SISHIR |
 | Core CRUD + SR Logic | VETRIVEL |
-| XP / Gamification | DINAKARAN |
+| XP / Gamification | C RYTHAN |
 | Frontend / UI | THIRUYAZHINI / DEEPSIKHA |
 | Landing Page | NAVYASREE |
 
