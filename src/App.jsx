@@ -1,0 +1,219 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+
+import { useAuth }        from './hooks/useAuth.js'
+import { useProblems }    from './hooks/useProblems.js'
+import { useStats }       from './hooks/useStats.js'
+import { useNotebooks }   from './hooks/useNotebooks.js'
+import { useActivityLog } from './hooks/useActivityLog.js'
+
+import Navbar        from './components/Navbar.jsx'
+import Landing       from './pages/Landing.jsx'
+import Onboarding    from './pages/Onboarding.jsx'
+import Dashboard     from './pages/Dashboard.jsx'
+import LogProblem    from './pages/LogProblem.jsx'
+import Problems      from './pages/Problems.jsx'
+import Topics        from './pages/Topics.jsx'
+import Stats         from './pages/Stats.jsx'
+import Achievements  from './pages/Achievements.jsx'
+import Leaderboard   from './pages/Leaderboard.jsx'
+import ImportExport  from './pages/ImportExport.jsx'
+import Profile       from './pages/Profile.jsx'
+
+// ─── Dark mode util ───────────────────────────────────────────────────────────
+function getInitialDark() {
+  try { return localStorage.getItem('trackit-theme') !== 'light' } catch { return true }
+}
+
+function applyTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark)
+  document.documentElement.classList.toggle('light', !dark)
+}
+
+// ─── Main App (inner, has router context) ────────────────────────────────────
+function AppInner() {
+  const navigate = useNavigate()
+  const [darkMode, setDarkMode] = useState(getInitialDark)
+
+  // Apply theme on mount + change
+  useEffect(() => { applyTheme(darkMode) }, [darkMode])
+
+  const toggleDark = () => {
+    setDarkMode(d => {
+      const next = !d
+      try { localStorage.setItem('trackit-theme', next ? 'dark' : 'light') } catch {}
+      return next
+    })
+  }
+
+  // ── Auth ──
+  const { user, profile, loading: authLoading, needsOnboarding,
+    signIn, signUp, signOut, updateDisplayName } = useAuth()
+
+  // ── Data hooks (only active when logged in) ──
+  const { problems, loading: probLoading, dueProblems, addProblem,
+    reviewProblem, updateNotes, deleteProblem, importProblems } = useProblems(user?.id)
+
+  const { notebooks, upsertNotebook, deleteNotebook, refetch: refetchNotebooks } = useNotebooks(user?.id)
+
+  const { stats, awardXP, updateWeeklyGoal, recheckAchievements } = useStats(user?.id, problems, notebooks)
+
+  const { activityMap, fetchActivity, logReview } = useActivityLog(user?.id)
+
+  // ── Handlers ──
+  const handleSignOut = async () => { await signOut(); navigate('/') }
+
+  const handleAddProblem = async (fields) => {
+    const { data, error, xpEarned } = await addProblem(fields)
+    if (!error) { await awardXP(xpEarned) }
+    return { data, error }
+  }
+
+  const handleReview = async (problemId, rating) => {
+    const { data, error, xpEarned } = await reviewProblem(problemId, rating)
+    if (!error) {
+      await awardXP(xpEarned)
+      await logReview()
+    }
+    return { data, error }
+  }
+
+  const handleUpdateGoal = async (goal) => {
+    await updateWeeklyGoal(goal)
+  }
+
+  const handleUpsertNotebook = async (topicName, theory) => {
+    const result = await upsertNotebook(topicName, theory)
+    return result
+  }
+
+  const handleDeleteNotebook = async (id) => {
+    await deleteNotebook(id)
+  }
+
+  // ── Loading state ──
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="text-center">
+          <div className="w-10 h-10 rounded-xl mx-auto mb-4 flex items-center justify-center text-white font-bold"
+            style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', animation: 'pulse 1.5s ease-in-out infinite' }}>T</div>
+          <p className="text-sm" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono,monospace' }}>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Unauthenticated ──
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="*" element={
+          <Landing onSignIn={signIn} onSignUp={signUp} />
+        } />
+      </Routes>
+    )
+  }
+
+  // ── Onboarding ──
+  if (needsOnboarding) {
+    return <Onboarding onSubmit={updateDisplayName} />
+  }
+
+  // ── Authenticated app ──
+  const unlockedIds = stats?.unlocked_achievements || []
+
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+      <Navbar
+        stats={stats}
+        dueCount={dueProblems.length}
+        solvedCount={problems.length}
+        darkMode={darkMode}
+        toggleDark={toggleDark}
+        onSignOut={handleSignOut}
+      />
+
+      <main className="pb-12">
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={
+            <Dashboard
+              problems={problems}
+              dueProblems={dueProblems}
+              stats={stats}
+              onRate={handleReview}
+              onNotesChange={updateNotes}
+              onUpdateGoal={handleUpdateGoal}
+            />
+          } />
+          <Route path="/log" element={
+            <LogProblem onAdd={handleAddProblem} />
+          } />
+          <Route path="/problems" element={
+            <Problems problems={problems} onDelete={deleteProblem} />
+          } />
+          <Route path="/topics" element={
+            <Topics
+              problems={problems}
+              notebooks={notebooks}
+              onUpsertNotebook={handleUpsertNotebook}
+              onDeleteNotebook={handleDeleteNotebook}
+              onAchievementCheck={recheckAchievements}
+            />
+          } />
+          <Route path="/stats" element={
+            <Stats
+              problems={problems}
+              stats={stats}
+              activityMap={activityMap}
+              onFetchActivity={fetchActivity}
+            />
+          } />
+          <Route path="/achievements" element={
+            <Achievements unlockedIds={unlockedIds} />
+          } />
+          <Route path="/leaderboard" element={
+            <Leaderboard currentUserId={user?.id} />
+          } />
+          <Route path="/import-export" element={
+            <ImportExport problems={problems} onImport={importProblems} />
+          } />
+          <Route path="/profile" element={
+            <Profile
+              user={user}
+              profile={profile}
+              onUpdateDisplayName={updateDisplayName}
+              onSignOut={handleSignOut}
+            />
+          } />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </main>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppInner />
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'var(--bg-secondary)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '14px',
+          },
+          success: { iconTheme: { primary: '#4ADE80', secondary: 'transparent' } },
+          error:   { iconTheme: { primary: '#F87171', secondary: 'transparent' } },
+        }}
+      />
+    </BrowserRouter>
+  )
+}
