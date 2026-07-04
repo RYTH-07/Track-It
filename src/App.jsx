@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 
 import { useAuth }        from './hooks/useAuth.js'
@@ -12,6 +12,7 @@ import Navbar        from './components/Navbar.jsx'
 import Landing       from './pages/Landing.jsx'
 import Onboarding    from './pages/Onboarding.jsx'
 import Dashboard     from './pages/Dashboard.jsx'
+import ReviewSession from './pages/ReviewSession.jsx'
 import LogProblem    from './pages/LogProblem.jsx'
 import Problems      from './pages/Problems.jsx'
 import Topics        from './pages/Topics.jsx'
@@ -23,12 +24,20 @@ import Profile       from './pages/Profile.jsx'
 
 // ─── Dark mode util ───────────────────────────────────────────────────────────
 function getInitialDark() {
-  try { return localStorage.getItem('trackit-theme') !== 'light' } catch { return true }
+  try {
+    const stored = localStorage.getItem('trackit-theme')
+    if (stored === 'light') return false
+    if (stored === 'dark') return true
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true
+  } catch {
+    return true
+  }
 }
 
 function applyTheme(dark) {
   document.documentElement.classList.toggle('dark', dark)
   document.documentElement.classList.toggle('light', !dark)
+  document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
 }
 
 // ─── Main App (inner, has router context) ────────────────────────────────────
@@ -49,7 +58,7 @@ function AppInner() {
 
   // ── Auth ──
   const { user, profile, loading: authLoading, needsOnboarding,
-    signIn, signUp, signOut, updateDisplayName } = useAuth()
+    signIn, signUp, signOut, updateDisplayName, resetPassword } = useAuth()
 
   // ── Data hooks (only active when logged in) ──
   const { problems, loading: probLoading, dueProblems, addProblem,
@@ -110,7 +119,13 @@ function AppInner() {
     return (
       <Routes>
         <Route path="*" element={
-          <Landing onSignIn={signIn} onSignUp={signUp} />
+          <Landing
+            onSignIn={signIn}
+            onSignUp={signUp}
+            onForgotPassword={resetPassword}
+            darkMode={darkMode}
+            toggleDark={toggleDark}
+          />
         } />
       </Routes>
     )
@@ -123,19 +138,23 @@ function AppInner() {
 
   // ── Authenticated app ──
   const unlockedIds = stats?.unlocked_achievements || []
+  const location = useLocation()
+  const showNavbar = location.pathname !== '/review'
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Navbar
-        stats={stats}
-        dueCount={dueProblems.length}
-        solvedCount={problems.length}
-        darkMode={darkMode}
-        toggleDark={toggleDark}
-        onSignOut={handleSignOut}
-      />
+      {showNavbar && (
+        <Navbar
+          stats={stats}
+          dueCount={dueProblems.length}
+          solvedCount={problems.length}
+          darkMode={darkMode}
+          toggleDark={toggleDark}
+          onSignOut={handleSignOut}
+        />
+      )}
 
-      <main className="pb-12">
+      <main className={showNavbar ? 'pb-12' : 'min-h-screen'}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={
@@ -146,6 +165,13 @@ function AppInner() {
               onRate={handleReview}
               onNotesChange={updateNotes}
               onUpdateGoal={handleUpdateGoal}
+            />
+          } />
+          <Route path="/review" element={
+            <ReviewSession
+              dueProblems={dueProblems}
+              onRate={handleReview}
+              onNotesChange={updateNotes}
             />
           } />
           <Route path="/log" element={

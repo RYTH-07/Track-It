@@ -7,7 +7,7 @@ export const SR_INTERVALS = {
   again: 1,
   hard: 3,
   good: 7,
-  master: 21,
+  master: 14,
 }
 
 // ─── XP Values ───────────────────────────────────────────────────────────────

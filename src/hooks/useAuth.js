@@ -77,10 +77,19 @@ export function useAuth() {
     }
     return { data, error }
   }
+  const resetPassword = async (email) => {
+  const domain = email.split('@')[1]
+  if (domain !== ALLOWED_DOMAIN) {
+    return { error: { message: DOMAIN_ERROR } }
+  }
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  })
+  return { data, error }
+}
 
   const refreshProfile = useCallback(async () => {
     if (user) await fetchProfile(user.id)
   }, [user, fetchProfile])
 
-  return { user, profile, loading, needsOnboarding, signUp, signIn, signOut, updateDisplayName, refreshProfile }
-}
+return { user, profile, loading, needsOnboarding, signUp, signIn, signOut, updateDisplayName, refreshProfile, resetPassword }}
