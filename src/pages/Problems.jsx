@@ -1,16 +1,23 @@
 import React, { useState, useMemo } from 'react'
-import { BookOpen, Search, ExternalLink, Trash2, ChevronDown } from 'lucide-react'
+import { BookOpen, Search, ExternalLink, Trash2, Pencil, ChevronDown } from 'lucide-react'
 import TopicTag from '../components/TopicTag.jsx'
+import TopicInput from '../components/TopicInput.jsx'
+import CodeSnippetInput from '../components/CodeSnippetInput.jsx'
+import MarkdownEditor from '../components/MarkdownEditor.jsx'
+import { detectLanguage } from '../lib/detectLanguage.js'
 import { masteryColor, masteryLabel, isOverdue, isDue, today } from '../lib/helpers.js'
 import Modal from '../components/Modal.jsx'
 import toast from 'react-hot-toast'
 
-export default function Problems({ problems, onDelete }) {
+const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
+
+export default function Problems({ problems, onDelete, onUpdate }) {
   const [search, setSearch]     = useState('')
   const [filterTopic, setFTopic]= useState('All')
   const [filterDiff, setFDiff]  = useState('All')
   const [filterStatus, setFStat]= useState('All')
   const [deleteId, setDeleteId] = useState(null)
+  const [editProblem, setEditProblem] = useState(null)
 
   const allTopics = useMemo(() => {
     const s = new Set()
@@ -120,17 +127,21 @@ export default function Problems({ problems, onDelete }) {
                     <p className="text-xs mt-1.5 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{p.notes}</p>
                   )}
                 </div>
-                {/* Right */}
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono,monospace' }}>
-                    Next: {p.next_review}
-                  </span>
+
+                <div className="flex flex-col items-end gap-2">
                   <button
-                    onClick={() => setDeleteId(p.id)}
-                    className="btn btn-danger px-2 py-1"
-                    aria-label="Delete problem"
+                    type="button"
+                    onClick={() => setEditProblem(p)}
+                    className="btn btn-ghost btn-sm gap-1"
                   >
-                    <Trash2 size={12} />
+                    <Pencil size={12} /> Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteId(p.id)}
+                    className="btn btn-primary btn-sm gap-1"
+                  >
+                    <Trash2 size={12} /> Delete
                   </button>
                 </div>
               </div>
@@ -139,16 +150,133 @@ export default function Problems({ problems, onDelete }) {
         </div>
       )}
 
-      {/* Delete confirm modal */}
-      <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Problem?" maxWidth={360}>
-        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-          This will permanently remove the problem and all its history.
-        </p>
-        <div className="flex gap-2 justify-end">
-          <button onClick={() => setDeleteId(null)} className="btn btn-ghost">Cancel</button>
-          <button onClick={confirmDelete} className="btn btn-danger">Delete</button>
+      <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Delete problem">
+        <div className="space-y-4">
+          <p>Are you sure you want to delete this problem? This cannot be undone.</p>
+          <div className="flex justify-end gap-2">
+            <button onClick={() => setDeleteId(null)} className="btn btn-ghost">Cancel</button>
+            <button onClick={confirmDelete} className="btn btn-primary">Delete</button>
+          </div>
         </div>
       </Modal>
+      <EditProblemModal
+        problem={editProblem}
+        onClose={() => setEditProblem(null)}
+        onSave={onUpdate}
+      />
     </div>
+  )
+}
+function EditProblemModal({ problem, onClose, onSave }) {
+  const [title, setTitle]     = useState('')
+  const [url, setUrl]         = useState('')
+  const [topics, setTopics]   = useState([])
+  const [difficulty, setDiff] = useState('Medium')
+  const [notes, setNotes]     = useState('')
+  const [code, setCode]       = useState('')
+  const [saving, setSaving]   = useState(false)
+
+  React.useEffect(() => {
+    if (problem) {
+      setTitle(problem.title || '')
+      setUrl(problem.url || '')
+      setTopics(problem.topics || [])
+      setDiff(problem.difficulty ? problem.difficulty[0].toUpperCase() + problem.difficulty.slice(1) : 'Medium')
+      setNotes(problem.notes || '')
+      setCode(problem.code || '')
+    }
+  }, [problem])
+
+  if (!problem) return null
+
+  const handleSave = async () => {
+    if (!title.trim()) { toast.error('Problem title is required'); return }
+    setSaving(true)
+    const { error } = await onSave(problem.id, {
+      title,
+      url: url?.trim() || null,
+      topics,
+      difficulty: difficulty.toLowerCase(),
+      notes,
+      code,
+      code_language: detectLanguage(code),
+    })
+    setSaving(false)
+    if (error) {
+      toast.error(error.message)
+    } else {
+      toast.success('Problem updated')
+      onClose()
+    }
+  }
+
+  return (
+    <Modal open={!!problem} onClose={onClose} title="Edit Problem">
+      <div className="space-y-4">
+        <div>
+          <label className="label" htmlFor="edit-title">Problem Title *</label>
+          <input
+            id="edit-title"
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            className="input"
+          />
+        </div>
+
+        <div>
+          <label className="label" htmlFor="edit-url">URL</label>
+          <input
+            id="edit-url"
+            type="url"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            className="input"
+          />
+        </div>
+
+        <div>
+          <label className="label">Topics</label>
+          <TopicInput topics={topics} onChange={setTopics} placeholder="Type a topic, press Enter or comma..." />
+        </div>
+
+        <div>
+          <label className="label">Difficulty</label>
+          <div className="flex gap-2">
+            {DIFFICULTIES.map(d => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDiff(d)}
+                className={`btn flex-1 text-sm ${
+                  d === 'Easy'   ? 'btn-good'   :
+                  d === 'Medium' ? 'btn-hard'   :
+                  'btn-again'
+                } ${difficulty === d ? 'ring-2 ring-white/20' : 'opacity-50'}`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="label">Important Syntaxes</label>
+          <CodeSnippetInput value={code} onChange={setCode} />
+        </div>
+
+        <div>
+          <label className="label" htmlFor="edit-notes">Notes / Key Patterns</label>
+          <MarkdownEditor value={notes} onChange={setNotes} placeholder="Edge cases, approach, traps..." />
+        </div>
+
+        <div className="flex gap-2 justify-end pt-2">
+          <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+          <button onClick={handleSave} disabled={saving} className="btn btn-primary">
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </div>
+    </Modal>
   )
 }

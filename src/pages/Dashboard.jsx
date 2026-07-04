@@ -109,7 +109,10 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
           <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>You're all caught up!</h2>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             No reviews due right now.{' '}
-            <a href="/log" onClick={e => { e.preventDefault(); window.location.hash = '/log' }} style={{ color: 'var(--accent)' }}>
+            <a href="/log"
+              onClick={e => { e.preventDefault(); navigate('/log') }}
+              style={{ color: 'var(--accent)' }}
+            >
               Log new problems
             </a>{' '}to keep the streak going.
           </p>

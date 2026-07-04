@@ -25,7 +25,7 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
       <div className="relative min-h-screen flex flex-col justify-center px-4 py-8 sm:px-10">
         {currentProblem ? (
           <div className="relative mx-auto w-full max-w-5xl">
-            <div className="fixed top-6 left-6 z-50">
+            <div className="fixed top-1/2 left-6 -translate-y-1/2 z-50">
               <button
                 type="button"
                 className="btn btn-ghost rounded-full p-3 disabled:opacity-40"
@@ -43,7 +43,7 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
                 onNotesChange={onNotesChange}
               />
             </div>
-            <div className="fixed top-6 right-6 z-50">
+            <div className="fixed top-1/2 right-6 -translate-y-1/2 z-50">
               <button
                 type="button"
                 className="btn btn-ghost rounded-full p-3 disabled:opacity-40"
