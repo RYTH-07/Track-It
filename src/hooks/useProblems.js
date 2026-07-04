@@ -23,30 +23,32 @@ export function useProblems(userId) {
     fetchProblems()
   }, [fetchProblems])
 
-  const addProblem = async ({ title, url, topics, difficulty, notes, initialConfidence }) => {
-    const nextReview = getNextReviewDate(initialConfidence)
-    const xpEarned = calculateXP(initialConfidence, difficulty)
-    const { data, error } = await supabase
-      .from('problems')
-      .insert([{
-        user_id: userId,
-        title: title.trim(),
-        url: url?.trim() || null,
-        topics: topics || [],
-        difficulty: difficulty || 'medium',
-        notes: notes?.trim() || null,
-        mastery: initialConfidence,
-        next_review: nextReview,
-        review_count: 0,
-        added_at: new Date().toISOString(),
-      }])
-      .select()
-      .single()
-    if (!error) {
-      setProblems(prev => [data, ...prev])
-    }
-    return { data, error, xpEarned }
+  const addProblem = async ({ title, url, topics, difficulty, notes, code, codeLanguage, initialConfidence }) => {
+  const nextReview = getNextReviewDate(initialConfidence)
+  const xpEarned = calculateXP(initialConfidence, difficulty)
+  const { data, error } = await supabase
+    .from('problems')
+    .insert([{
+      user_id: userId,
+      title: title.trim(),
+      url: url?.trim() || null,
+      topics: topics || [],
+      difficulty: difficulty || 'medium',
+      notes: notes?.trim() || null,
+      code: code?.trim() || null,
+      code_language: codeLanguage || 'plaintext',
+      mastery: initialConfidence,
+      next_review: nextReview,
+      review_count: 0,
+      added_at: new Date().toISOString(),
+    }])
+    .select()
+    .single()
+  if (!error) {
+    setProblems(prev => [data, ...prev])
   }
+  return { data, error, xpEarned }
+}
 
   const reviewProblem = async (problemId, rating) => {
     const problem = problems.find(p => p.id === problemId)

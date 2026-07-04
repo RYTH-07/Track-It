@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
-import { Plus, Link, FileText, ChevronRight } from 'lucide-react'
+import { Plus, Link, ChevronRight } from 'lucide-react'
 import TopicInput from '../components/TopicInput.jsx'
+import CodeSnippetInput from '../components/CodeSnippetInput.jsx'
+import MarkdownEditor from '../components/MarkdownEditor.jsx'
+import { detectLanguage } from '../utils/detectLanguage'
 import toast from 'react-hot-toast'
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
@@ -17,6 +20,7 @@ export default function LogProblem({ onAdd }) {
   const [topics, setTopics]     = useState([])
   const [difficulty, setDiff]   = useState('Medium')
   const [notes, setNotes]       = useState('')
+  const [code, setCode]         = useState('')
   const [confidence, setConf]   = useState('good')
   const [loading, setLoading]   = useState(false)
 
@@ -28,13 +32,15 @@ export default function LogProblem({ onAdd }) {
       title, url, topics,
       difficulty: difficulty.toLowerCase(),
       notes,
+      code,
+      codeLanguage: detectLanguage(code),
       initialConfidence: confidence,
     })
     if (error) {
       toast.error(error.message)
     } else {
       toast.success('Problem logged! 🎯')
-      setTitle(''); setUrl(''); setTopics([]); setNotes(''); setDiff('Medium'); setConf('good')
+      setTitle(''); setUrl(''); setTopics([]); setNotes(''); setCode(''); setDiff('Medium'); setConf('good')
     }
     setLoading(false)
   }
@@ -115,16 +121,19 @@ export default function LogProblem({ onAdd }) {
           </div>
         </div>
 
-        {/* Notes */}
+        {/* Code snippet — auto language detection */}
+        <div>
+          <label className="label">IMPORTANT SYNTAXES</label>
+          <CodeSnippetInput value={code} onChange={setCode} />
+        </div>
+
+        {/* Notes — markdown editor with write/preview */}
         <div>
           <label className="label" htmlFor="prob-notes">Notes / Key Patterns</label>
-          <textarea
-            id="prob-notes"
+          <MarkdownEditor
             value={notes}
-            onChange={e => setNotes(e.target.value)}
-            className="input resize-none"
+            onChange={setNotes}
             placeholder="Edge cases, approach, traps, time complexity..."
-            rows={3}
           />
         </div>
 

@@ -306,3 +306,11 @@
   border: 1px solid var(--border) !important;
   color: var(--text-primary) !important;
 }
+
+/* Markdown */
+.markdown-preview .code-block { margin: 8px 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.markdown-preview .code-block-lang { font-size: 10px; padding: 2px 8px; background: rgba(139,92,246,0.15); color: #a78bfa; }
+.markdown-preview .code-block pre { margin: 0; padding: 10px; overflow-x: auto; background: var(--bg-primary); color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+.markdown-preview .inline-code { background: var(--bg-tertiary); color: var(--text-primary); padding: 1px 4px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.markdown-preview h1, .markdown-preview h2, .markdown-preview h3 { margin: 6px 0; font-weight: 600; color: var(--text-primary); }
+.markdown-preview ul { padding-left: 20px; margin: 6px 0; }

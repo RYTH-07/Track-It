@@ -178,8 +178,8 @@ function AppInner() {
             <LogProblem onAdd={handleAddProblem} />
           } />
           <Route path="/problems" element={
-            <Problems problems={problems} onDelete={deleteProblem} />
-          } />
+            <Problems problems={problems} onDelete={deleteProblem} onUpdate={updateNotes} />
+          } />  
           <Route path="/topics" element={
             <Topics
               problems={problems}
