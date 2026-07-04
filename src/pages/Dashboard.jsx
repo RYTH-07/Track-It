@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
-import { Settings, CheckCircle2, Target, Zap } from 'lucide-react'
-import ReviewCard from '../components/ReviewCard.jsx'
+import React, { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Settings, CheckCircle2, Target } from 'lucide-react'
 import ProgressBar from '../components/ProgressBar.jsx'
 import Modal from '../components/Modal.jsx'
 import { getWeakTopic } from '../lib/helpers.js'
 
 export default function Dashboard({ problems, dueProblems, stats, onRate, onNotesChange, onUpdateGoal }) {
+  const navigate = useNavigate()
   const [goalModal, setGoalModal] = useState(false)
   const [goalInput, setGoalInput] = useState(stats?.weekly_goal || 5)
   const [submitting, setSubmitting] = useState(false)
@@ -14,6 +15,15 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
   const weekCount = stats?.week_count || 0
   const goalPct = Math.min(100, Math.round((weekCount / weeklyGoal) * 100))
   const weakTopic = getWeakTopic(problems)
+
+  const reviewSummary = useMemo(() => {
+    const totalDue = dueProblems.length
+    return { totalDue }
+  }, [dueProblems])
+
+  const handleStartReview = () => {
+    navigate('/review')
+  }
 
   const handleGoalSave = async () => {
     const val = parseInt(goalInput)
@@ -72,6 +82,26 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
         </div>
       )}
 
+      {dueProblems.length > 0 && (
+        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.8)]">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.22em] text-slate-500">Ready to review</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">{dueProblems.length} cards due today</h2>
+              <p className="mt-1 text-sm text-slate-400">Start a focused review session now.</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleStartReview}
+              className="rounded-3xl bg-violet-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-400"
+            >
+              Start review
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Review cards or empty state */}
       {dueProblems.length === 0 ? (
         <div className="text-center py-16 animate-fade-in">
@@ -84,18 +114,7 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
             </a>{' '}to keep the streak going.
           </p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {dueProblems.map(p => (
-            <ReviewCard
-              key={p.id}
-              problem={p}
-              onRate={onRate}
-              onNotesChange={onNotesChange}
-            />
-          ))}
-        </div>
-      )}
+      ) : null}
 
       {/* Weekly goal modal */}
       <Modal open={goalModal} onClose={() => setGoalModal(false)} title="Set Weekly Goal" maxWidth={360}>

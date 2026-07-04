@@ -69,10 +69,11 @@ export function useProblems(userId) {
     return { data, error, xpEarned }
   }
 
-  const updateNotes = async (problemId, notes) => {
+  const updateNotes = async (problemId, updates) => {
+    const payload = typeof updates === 'string' ? { notes: updates } : updates || {}
     const { data, error } = await supabase
       .from('problems')
-      .update({ notes })
+      .update(payload)
       .eq('id', problemId)
       .select()
       .single()
