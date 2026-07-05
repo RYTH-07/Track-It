@@ -1,5 +1,14 @@
 import React, { useEffect } from 'react'
-import { BarChart2, Flame, Zap, BookOpen, CheckCircle2, Clock, Star } from 'lucide-react'
+import {
+  BarChart2,
+  Flame,
+  Zap,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  Star,
+  Target
+} from 'lucide-react'
 import ActivityHeatmap from '../components/ActivityHeatmap.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import { getXPProgress, getRankFromXP, isDue } from '../lib/helpers.js'
@@ -16,6 +25,12 @@ export default function Stats({ problems, stats, activityMap, onFetchActivity })
   const dueCount      = problems.filter(p => isDue(p.next_review)).length
   const masteredCount = problems.filter(p => p.mastery === 'master').length
   const totalReviews  = stats?.total_reviews || 0
+  const weeklyGoal = stats?.weekly_goal || 5
+const weekCount = stats?.week_count || 0
+const weeklyPct = Math.min(
+  100,
+  Math.round((weekCount / weeklyGoal) * 100)
+)
 
   const easyCount   = problems.filter(p => p.difficulty?.toLowerCase() === 'easy').length
   const mediumCount = problems.filter(p => p.difficulty?.toLowerCase() === 'medium').length
@@ -75,6 +90,54 @@ export default function Stats({ problems, stats, activityMap, onFetchActivity })
           <ActivityHeatmap activityMap={activityMap} />
         </div>
       </div>
+      {/*weekly goal*/}
+      <div className="card p-4">
+  <div className="section-header">
+    <Target size={12} className="text-violet-400" />
+    Weekly Goal
+  </div>
+
+  <div className="flex items-center gap-3">
+    <div className="flex-1">
+      <div
+        className="flex justify-between text-xs mb-2"
+        style={{
+          color: "var(--text-secondary)",
+          fontFamily: "JetBrains Mono, monospace",
+        }}
+      >
+        <span>
+          {weekCount} / {weeklyGoal} reviews this week
+        </span>
+
+        <span className="text-violet-300 font-semibold">
+          {weeklyPct}%
+        </span>
+      </div>
+
+      <ProgressBar pct={weeklyPct} />
+
+      <div
+        className="flex justify-between mt-2 text-xs"
+        style={{
+          color: "var(--text-muted)",
+          fontFamily: "JetBrains Mono, monospace",
+        }}
+      >
+        <span>{Math.max(0, weeklyGoal - weekCount)} reviews remaining</span>
+
+        {weeklyPct === 100 ? (
+          <span className="text-green-400">Goal Completed 🎉</span>
+        ) : (
+          <span className="text-violet-300">
+            {weeklyGoal - weekCount} to go
+          </span>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Difficulty breakdown */}
       <div className="card p-4">

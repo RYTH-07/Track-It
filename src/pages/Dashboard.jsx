@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Settings, CheckCircle2, Target } from 'lucide-react'
+import { Settings, CheckCircle2, Target, CircleCheckBig } from 'lucide-react'
 import ProgressBar from '../components/ProgressBar.jsx'
 import Modal from '../components/Modal.jsx'
 import { getWeakTopic } from '../lib/helpers.js'
@@ -105,7 +105,15 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
       {/* Review cards or empty state */}
       {dueProblems.length === 0 ? (
         <div className="text-center py-16 animate-fade-in">
-          <div className="text-5xl mb-4 animate-float">✅</div>
+          <div className="mb-6 flex justify-center">
+  <div className="flex h-16 w-16 items-center justify-center rounded-full border border-violet-400/20 bg-violet-500/10 backdrop-blur-xl">
+    <CircleCheckBig
+      size={30}
+      className="text-violet-300"
+      strokeWidth={1.8}
+    />
+  </div>
+</div>
           <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>You're all caught up!</h2>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             No reviews due right now.{' '}

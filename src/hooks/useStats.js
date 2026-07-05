@@ -79,6 +79,8 @@ export function useStats(userId, problems, notebooks) {
     }
 
     // Check achievements
+    console.log("Problems:", problems.length);
+    console.log("Unlocked:", stats.unlocked_achievements);
     const newlyUnlocked = checkNewAchievements({
       unlockedIds: stats.unlocked_achievements || [],
       stats: updatedStats,
@@ -87,6 +89,7 @@ export function useStats(userId, problems, notebooks) {
     })
 
     if (newlyUnlocked.length > 0) {
+      console.log("New achievements:", newlyUnlocked);
       const allUnlocked = [...(stats.unlocked_achievements || []), ...newlyUnlocked]
       updatedStats.unlocked_achievements = allUnlocked
       newlyUnlocked.forEach(id => {
@@ -109,6 +112,8 @@ export function useStats(userId, problems, notebooks) {
       .eq('user_id', userId)
       .select()
       .single()
+      console.log("Supabase update error:", error);
+      console.log("Supabase update data:", data);
 
     if (!error) setStats(data)
     return { data, error }

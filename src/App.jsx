@@ -21,6 +21,7 @@ import Achievements  from './pages/Achievements.jsx'
 import Leaderboard   from './pages/Leaderboard.jsx'
 import ImportExport  from './pages/ImportExport.jsx'
 import Profile       from './pages/Profile.jsx'
+import Modal         from './components/Modal.jsx'
 
 // ─── Dark mode util ───────────────────────────────────────────────────────────
 function getInitialDark() {
@@ -43,8 +44,7 @@ function applyTheme(dark) {
 // ─── Main App (inner, has router context) ────────────────────────────────────
 function AppInner() {
   const navigate = useNavigate()
-  const [darkMode, setDarkMode] = useState(getInitialDark)
-
+  const [darkMode, setDarkMode] = useState(true)
   // Apply theme on mount + change
   useEffect(() => { applyTheme(darkMode) }, [darkMode])
 
@@ -61,23 +61,51 @@ function AppInner() {
     signIn, signUp, signOut, updateDisplayName, resetPassword } = useAuth()
 
   // ── Data hooks (only active when logged in) ──
-  const { problems, loading: probLoading, dueProblems, addProblem,
-    reviewProblem, updateNotes, deleteProblem, importProblems } = useProblems(user?.id)
+  const {
+  problems,
+  loading: probLoading,
+  dueProblems,
+  addProblem,
+  reviewProblem,
+  updateNotes,
+  deleteProblem,
+  importProblems,
+  refetch
+} = useProblems(user?.id)
 
-  const { notebooks, upsertNotebook, deleteNotebook, refetch: refetchNotebooks } = useNotebooks(user?.id)
+  //  AFTER (Fixed and Clean)
+const { notebooks, upsertNotebook, deleteNotebook, refetch: refetchNotebooks } = useNotebooks(user?.id)
+console.log("App.jsx Source Notebooks:", notebooks)
 
   const { stats, awardXP, updateWeeklyGoal, recheckAchievements } = useStats(user?.id, problems, notebooks)
 
   const { activityMap, fetchActivity, logReview } = useActivityLog(user?.id)
 
   // ── Handlers ──
-  const handleSignOut = async () => { await signOut(); navigate('/') }
+  const handleSignOut = () => {
+  setLogoutModal(true)
+}
+const confirmLogout = async () => {
+  setLoggingOut(true)
 
-  const handleAddProblem = async (fields) => {
-    const { data, error, xpEarned } = await addProblem(fields)
-    if (!error) { await awardXP(xpEarned) }
-    return { data, error }
+  await signOut()
+
+  setLoggingOut(false)
+  setLogoutModal(false)
+
+  navigate('/')
+}
+
+ const handleAddProblem = async (fields) => {
+  const { data, error, xpEarned } = await addProblem(fields)
+
+  if (!error) {
+    await refetch()
+    await awardXP(xpEarned)
   }
+
+  return { data, error }
+}
 
   const handleReview = async (problemId, rating) => {
     const { data, error, xpEarned } = await reviewProblem(problemId, rating)
@@ -100,6 +128,8 @@ function AppInner() {
   const handleDeleteNotebook = async (id) => {
     await deleteNotebook(id)
   }
+  const [logoutModal, setLogoutModal] = useState(false)
+const [loggingOut, setLoggingOut] = useState(false)
 
   // ── Loading state ──
   if (authLoading) {
@@ -142,7 +172,7 @@ function AppInner() {
   const showNavbar = location.pathname !== '/review'
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+   <div className="min-h-screen app-bg text-white">
       {showNavbar && (
         <Navbar
           stats={stats}
@@ -174,9 +204,11 @@ function AppInner() {
               onNotesChange={updateNotes}
             />
           } />
-          <Route path="/log" element={
-            <LogProblem onAdd={handleAddProblem} />
-          } />
+         <Route path="/log" element={
+            <LogProblem onAdd={handleAddProblem} notebooks={notebooks} />
+            
+          }
+            />
           <Route path="/problems" element={
             <Problems problems={problems} onDelete={deleteProblem} onUpdate={updateNotes} />
           } />  
@@ -217,6 +249,74 @@ function AppInner() {
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
+      <Modal
+  open={logoutModal}
+  onClose={() => {
+    if (!loggingOut) setLogoutModal(false)
+  }}
+  title="Sign Out"
+  maxWidth={420}
+>
+  <div className="space-y-5">
+
+    <div className="flex items-center gap-4">
+
+      <div
+        className="w-14 h-14 rounded-2xl flex items-center justify-center"
+        style={{
+          background: "rgba(124,58,237,.12)",
+          color: "#A78BFA"
+        }}
+      >
+        👋
+      </div>
+
+      <div>
+
+        <h3
+          className="font-semibold text-lg"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Sign Out?
+        </h3>
+
+        <p
+          className="text-sm mt-1"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          You're about to sign out of Track-It.
+
+          <br /><br />
+
+          Your progress has already been saved.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div className="flex justify-end gap-3">
+
+      <button
+        className="btn btn-ghost"
+        disabled={loggingOut}
+        onClick={() => setLogoutModal(false)}
+      >
+        Stay Logged In
+      </button>
+
+      <button
+        className="btn btn-primary"
+        disabled={loggingOut}
+        onClick={confirmLogout}
+      >
+        {loggingOut ? "Signing Out..." : "Sign Out"}
+      </button>
+
+    </div>
+
+  </div>
+</Modal>
     </div>
   )
 }

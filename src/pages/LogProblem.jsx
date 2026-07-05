@@ -14,7 +14,7 @@ const CONFIDENCE_OPTIONS = [
   { value: 'master',label: 'Solved perfectly (Master)' },
 ]
 
-export default function LogProblem({ onAdd }) {
+export default function LogProblem({ onAdd, notebooks = [] }) {
   const [title, setTitle]       = useState('')
   const [url, setUrl]           = useState('')
   const [topics, setTopics]     = useState([])
@@ -45,6 +45,8 @@ export default function LogProblem({ onAdd }) {
     setLoading(false)
   }
 
+  console.log("Notebooks:", notebooks)
+  
   return (
     <div className="max-w-xl mx-auto px-4 py-6">
       <div className="mb-6">
@@ -90,11 +92,33 @@ export default function LogProblem({ onAdd }) {
         {/* Topics */}
         <div>
           <label className="label">Topics</label>
-          <TopicInput
-            topics={topics}
-            onChange={setTopics}
-            placeholder="Type a topic, press Enter or comma..."
-          />
+          <select
+            className="input"
+            onChange={(e) => {
+              if (e.target.value && !topics.includes(e.target.value)) {
+                setTopics([...topics, e.target.value]);
+              }
+            }}
+          >
+            <option value="">Select Topic</option>
+            {notebooks?.map((n) => (
+              <option key={n.id} value={n.topic_name}>
+                {n.topic_name}
+              </option>
+            ))}
+          </select>
+          
+          <div className="flex flex-wrap gap-2 mt-2">
+            {topics.map((topic) => (
+              <span
+                key={topic}
+                className="px-2 py-1 rounded bg-violet-600 text-white text-xs cursor-pointer"
+                onClick={() => setTopics(topics.filter((t) => t !== topic))}
+              >
+                {topic} ✕
+              </span>
+            ))}
+          </div>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             Press Enter or comma to add each topic
           </p>

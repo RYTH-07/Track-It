@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect} from 'react'
 import { Tag, Plus, Trash2 } from 'lucide-react'
 import { isDue } from '../lib/helpers.js'
 import Modal from '../components/Modal.jsx'
@@ -8,6 +8,9 @@ export default function Topics({ problems, notebooks, onUpsertNotebook, onDelete
   const [newTopicModal, setNewTopicModal] = useState(false)
   const [newTopicName, setNewTopicName]   = useState('')
   const [saving, setSaving]              = useState(null) // topic being saved
+  const [deleteModal, setDeleteModal] = useState(false)
+const [selectedNotebook, setSelectedNotebook] = useState(null)
+const [deleting, setDeleting] = useState(false)
 
   // Topic distribution
   const topicStats = useMemo(() => {
@@ -124,11 +127,13 @@ export default function Topics({ problems, notebooks, onUpsertNotebook, onDelete
                     {saving === nb.topic_name && (
                       <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono,monospace' }}>saving...</span>
                     )}
-                    <button
-                      onClick={async () => { await onDeleteNotebook(nb.id); toast.success('Notebook deleted') }}
-                      className="btn btn-danger px-2 py-1"
-                      aria-label={`Delete ${nb.topic_name} notebook`}
-                    >
+                   <button
+  onClick={() => {
+    setSelectedNotebook(nb)
+    setDeleteModal(true)
+  }}
+  className="btn btn-danger px-2 py-1"
+>
                       <Trash2 size={12} />
                     </button>
                   </div>
@@ -172,6 +177,95 @@ export default function Topics({ problems, notebooks, onUpsertNotebook, onDelete
           </div>
         </div>
       </Modal>
+      <Modal
+  open={deleteModal}
+  onClose={() => {
+    if (!deleting) {
+      setDeleteModal(false)
+      setSelectedNotebook(null)
+    }
+  }}
+  title="Delete Notebook"
+  maxWidth={420}
+>
+  <div className="space-y-5">
+
+    <div className="flex items-center gap-4">
+
+      <div
+        className="w-14 h-14 rounded-2xl flex items-center justify-center"
+        style={{
+          background: "rgba(239,68,68,.12)",
+          color: "#ef4444"
+        }}
+      >
+        🗑️
+      </div>
+
+      <div>
+
+        <h3
+          className="font-semibold text-lg"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Delete Notebook?
+        </h3>
+
+        <p
+          className="text-sm mt-1"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          <strong>{selectedNotebook?.topic_name}</strong> will be permanently
+          deleted.
+
+          <br /><br />
+
+          This action cannot be undone.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div className="flex justify-end gap-3">
+
+      <button
+        className="btn btn-ghost"
+        disabled={deleting}
+        onClick={() => {
+          setDeleteModal(false)
+          setSelectedNotebook(null)
+        }}
+      >
+        Cancel
+      </button>
+
+      <button
+        className="btn btn-danger"
+        disabled={deleting}
+        onClick={async () => {
+
+          setDeleting(true)
+
+          await onDeleteNotebook(selectedNotebook.id)
+
+          toast.success("Notebook deleted")
+
+          setDeleting(false)
+
+          setDeleteModal(false)
+
+          setSelectedNotebook(null)
+
+        }}
+      >
+        {deleting ? "Deleting..." : "Delete"}
+      </button>
+
+    </div>
+
+  </div>
+</Modal>
     </div>
   )
 }

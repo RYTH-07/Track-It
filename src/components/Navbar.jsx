@@ -1,95 +1,142 @@
-import React from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, Plus, BookOpen, Tag, BarChart2,
-  Trophy, Download, Sun, Moon, LogOut, User, Crown, Zap, Flame, CheckCircle, Medal
-} from 'lucide-react'
-import { getRankFromXP, getXPProgress } from '../lib/helpers.js'
+  LayoutGrid,
+  Plus,
+  MessageSquare,
+  Compass,
+  BarChart3,
+  Award,
+  TrendingUp,
+  ArrowDownUp,
+  Flame,
+  Leaf,
+  Zap,
+  Target,
+  CheckCircle2,
+  Sun,
+  Moon,
+  User,
+  LogOut,
+} from "lucide-react";
+import "./Navbar.css";
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Review Queue', icon: LayoutDashboard },
-  { to: '/log',       label: 'Log Problem',  icon: Plus },
-  { to: '/problems',  label: 'All Problems', icon: BookOpen },
-  { to: '/topics',    label: 'Topics',       icon: Tag },
-  { to: '/stats',     label: 'Stats',        icon: BarChart2 },
-  { to: '/achievements', label: 'Achievements', icon: Trophy },
-  { to: '/leaderboard',  label: 'Leaderboard',  icon: Medal },
-  { to: '/import-export', label: 'Import/Export', icon: Download },
-]
+  { to: "/dashboard", label: "Review Queue", icon: LayoutGrid },
+  { to: "/log", label: "Log Problem", icon: Plus },
+  { to: "/problems", label: "All Problems", icon: MessageSquare },
+  { to: "/topics", label: "Topics", icon: Compass },
+  { to: "/stats", label: "Stats", icon: BarChart3 },
+  { to: "/achievements", label: "Achievements", icon: Award },
+  { to: "/leaderboard", label: "Leaderboard", icon: TrendingUp },
+  { to: "/import-export", label: "Import/Export", icon: ArrowDownUp },
+];
 
-export default function Navbar({ stats, dueCount, solvedCount, darkMode, toggleDark, onSignOut }) {
-  const navigate = useNavigate()
-  const xp = stats?.xp || 0
-  const streak = stats?.streak || 0
-  const rank = getRankFromXP(xp)
-  const { pct } = getXPProgress(xp)
+export default function Navbar({
+  stats = {},
+  dueCount = 0,
+  solvedCount = 0,
+  darkMode = true,
+  toggleDark = () => {},
+  onSignOut = () => {},
+}) {
+  const navigate = useNavigate();
+
+  // NOTE: confirm these three field names against useStats.js — I don't have
+  // that file, so this is a best guess at how streak/rank/xp are named on
+  // the stats object. dueCount and solvedCount are exact since they're
+  // passed as their own props from App.jsx.
+  const streak = stats?.streak ?? stats?.streak_days ?? 0;
+  const rank = stats?.rank ?? "Novice";
+  const xp = stats?.xp ?? stats?.total_xp ?? 0;
 
   return (
-    <header className="sticky top-0 z-40 glass border-b" style={{ background: 'rgba(13,17,23,0.92)', borderColor: 'var(--border)' }}>
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 gap-4">
-        {/* Logo */}
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-            style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}>T</div>
-          <span className="font-bold text-sm tracking-wide hidden sm:block" style={{ fontFamily: 'JetBrains Mono,monospace', color: 'var(--text-primary)' }}>Track-It</span>
-        </button>
+    <div className="tk-navbar">
+      {/* top row: brand + stats + utility icons */}
+      <div className="tk-topbar">
+        <div className="tk-brand">
+          <div className="tk-brand-mark">T</div>
+          <span className="tk-brand-name">Track-It</span>
+        </div>
 
-        {/* Stats chips */}
-        <div className="flex items-center gap-2 flex-1 justify-end flex-wrap">
-          <span className="stat-chip text-xs">
-            <Flame size={13} className={streak > 0 ? 'text-orange-400' : ''} />
-            <span style={{ fontFamily: 'JetBrains Mono,monospace' }}>{streak}d</span>
-          </span>
-          <span className="stat-chip text-xs">
-            <span style={{ fontFamily: 'JetBrains Mono,monospace' }}>{rank.emoji} {rank.name}</span>
-          </span>
-          <span className="stat-chip text-xs">
-            <Zap size={13} className="text-violet-400" />
-            <span style={{ fontFamily: 'JetBrains Mono,monospace' }}>{xp} XP</span>
-          </span>
-          <span className="stat-chip text-xs" style={{ color: dueCount > 0 ? '#FDE047' : 'var(--text-secondary)' }}>
-            <CheckCircle size={13} />
-            <span style={{ fontFamily: 'JetBrains Mono,monospace' }}>{dueCount} due</span>
-          </span>
-          <span className="stat-chip text-xs">
-            <BookOpen size={13} />
-            <span style={{ fontFamily: 'JetBrains Mono,monospace' }}>{solvedCount} solved</span>
-          </span>
+        <div className="tk-stats">
+          <div className="tk-stat-streak-wrap">
+            <span className="tk-ember tk-ember-1" aria-hidden="true" />
+            <span className="tk-ember tk-ember-2" aria-hidden="true" />
+            <span className="tk-ember tk-ember-3" aria-hidden="true" />
+            <span className="tk-ember tk-ember-4" aria-hidden="true" />
+            <span className="tk-ember tk-ember-5" aria-hidden="true" />
+            <span className="tk-ember tk-ember-6" aria-hidden="true" />
+            <div className="tk-stat tk-stat--streak">
+              <Flame size={18} strokeWidth={2.6} className="tk-stat-icon" />
+              <span className="tk-stat-value">{streak}d</span>
+              <span className="tk-stat-label">Streak</span>
+            </div>
+          </div>
 
-          {/* Dark/light toggle */}
-          <button onClick={toggleDark} className="btn btn-ghost px-2 py-1.5" title="Toggle dark/light mode" aria-label="Toggle theme">
-            {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+          <div className="tk-stat tk-stat--rank">
+            <Leaf size={15} strokeWidth={2.4} className="tk-stat-icon" />
+            <span className="tk-stat-value">{rank}</span>
+            <span className="tk-stat-label">Rank</span>
+          </div>
+
+          <div className="tk-stat tk-stat--xp">
+            <Zap size={15} strokeWidth={2.4} className="tk-stat-icon" />
+            <span className="tk-stat-value">{xp}</span>
+            <span className="tk-stat-label">Xp</span>
+          </div>
+
+          <div className="tk-stat tk-stat--due">
+            <Target size={15} strokeWidth={2.4} className="tk-stat-icon" />
+            <span className="tk-stat-value">{dueCount}</span>
+            <span className="tk-stat-label">Due</span>
+          </div>
+
+          <div className="tk-stat tk-stat--solved">
+            <CheckCircle2 size={15} strokeWidth={2.4} className="tk-stat-icon" />
+            <span className="tk-stat-value">{solvedCount}</span>
+            <span className="tk-stat-label">Solved</span>
+          </div>
+        </div>
+
+        <div className="tk-actions">
+          <button className="tk-icon-btn" aria-label="Toggle theme" onClick={toggleDark}>
+            {darkMode ? <Sun size={17} /> : <Moon size={17} />}
           </button>
-          {/* Profile */}
-          <button onClick={() => navigate('/profile')} className="btn btn-ghost px-2 py-1.5" title="Profile" aria-label="Profile">
-            <User size={15} />
+          <button
+            className="tk-icon-btn"
+            aria-label="Profile"
+            onClick={() => navigate("/profile")}
+          >
+            <User size={17} />
           </button>
-          {/* Sign out */}
-          <button onClick={onSignOut} className="btn btn-ghost px-2 py-1.5 text-red-400 hover:text-red-300" title="Sign out" aria-label="Sign out">
-            <LogOut size={15} />
+          <button
+            className="tk-icon-btn tk-icon-btn--danger"
+            aria-label="Log out"
+            onClick={onSignOut}
+          >
+            <LogOut size={17} />
           </button>
         </div>
       </div>
 
-      {/* XP progress strip */}
-      <div className="h-0.5 w-full" style={{ background: 'var(--bg-tertiary)' }}>
-        <div className="h-full transition-all duration-700" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #7C3AED, #A78BFA)' }} />
-      </div>
+      <div className="tk-divider" />
 
-      {/* Nav tabs */}
-      <nav className="flex items-center gap-1 px-4 overflow-x-auto py-1 scrollbar-hide">
+      {/* single nav row, no duplicates */}
+      <nav className="tk-nav">
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
-            className={({ isActive }) => `nav-link text-xs ${isActive ? 'active' : ''}`}
+            className={({ isActive }) =>
+              `tk-nav-item ${isActive ? "tk-nav-item--active" : ""}`
+            }
           >
-            <Icon size={13} />
-            <span className="hidden sm:inline">{label}</span>
+            <Icon size={16} strokeWidth={2.2} />
+            <span>{label}</span>
           </NavLink>
         ))}
       </nav>
-    </header>
-  )
+    </div>
+  );
 }
