@@ -60,26 +60,63 @@ export default function Problems({ problems, onDelete, onUpdate }) {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <div className="relative flex-1 min-w-48">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="input pl-8 text-sm"
-            placeholder="Search by title, topic, notes..."
-          />
-        </div>
-        <select value={filterTopic} onChange={e => setFTopic(e.target.value)} className="input w-auto text-sm">
-          {allTopics.map(t => <option key={t}>{t}</option>)}
-        </select>
-        <select value={filterDiff} onChange={e => setFDiff(e.target.value)} className="input w-auto text-sm">
-          {['All', 'Easy', 'Medium', 'Hard'].map(d => <option key={d}>{d}</option>)}
-        </select>
-        <select value={filterStatus} onChange={e => setFStat(e.target.value)} className="input w-auto text-sm">
-          {['All', 'Due', 'Overdue', 'Mastered'].map(s => <option key={s}>{s}</option>)}
-        </select>
+      <div className="flex flex-wrap items-end gap-4 mb-6">
+        <div className="relative flex-1 min-w-[280px]">
+  <Search
+    size={18}
+    strokeWidth={2}
+    className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+    style={{ color: "var(--text-muted)" }}
+  />
+
+  <input
+    type="text"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    placeholder="Search by title, topic or notes..."
+    className="input h-[52px] w-full pl-12 pr-4 text-sm"
+  />
+</div>
+       <div className="filters-row">
+  <div className="filter-group">
+    <label className="filter-label">Topic</label>
+    <select
+      value={filterTopic}
+      onChange={(e) => setFTopic(e.target.value)}
+      className="filter-select"
+    >
+      {allTopics.map((t) => (
+        <option key={t}>{t}</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="filter-group">
+    <label className="filter-label">Difficulty</label>
+    <select
+      value={filterDiff}
+      onChange={(e) => setFDiff(e.target.value)}
+      className="filter-select"
+    >
+      {["All", "Easy", "Medium", "Hard"].map((d) => (
+        <option key={d}>{d}</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="filter-group">
+    <label className="filter-label">Status</label>
+    <select
+      value={filterStatus}
+      onChange={(e) => setFStat(e.target.value)}
+      className="filter-select"
+    >
+      {["All", "Due", "Overdue", "Mastered"].map((s) => (
+        <option key={s}>{s}</option>
+      ))}
+    </select>
+  </div>
+</div>
       </div>
 
       {/* Table / Cards */}

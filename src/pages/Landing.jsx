@@ -896,7 +896,7 @@ export default function Landing({
               <div><label style={lbl}>First name</label><input style={inp} placeholder="Navya" value={su.firstName} onChange={e=>setSu(p=>({...p,firstName:e.target.value}))}/></div>
               <div><label style={lbl}>Last name</label><input style={inp} placeholder="Sree" value={su.lastName} onChange={e=>setSu(p=>({...p,lastName:e.target.value}))}/></div>
             </div>
-            <div style={{marginBottom:'10px'}}><label style={lbl}>College email</label><input type="email" style={inp} placeholder={`cb.en.u4cse22xxx${DOMAIN}`} value={su.email} onChange={e=>setSu(p=>({...p,email:e.target.value}))}/></div>
+            <div style={{marginBottom:'10px'}}><label style={lbl}>College email</label><input type="email" style={inp} placeholder={`ch.sc.u4cse22xxx${DOMAIN}`} value={su.email} onChange={e=>setSu(p=>({...p,email:e.target.value}))}/></div>
             <div style={{marginBottom:'10px'}}><label style={lbl}>Department</label>
               <select style={inp} value={su.dept} onChange={e=>setSu(p=>({...p,dept:e.target.value}))}>
                 <option value="" disabled>Select</option>
@@ -932,7 +932,7 @@ export default function Landing({
               <>
                 <h2 style={{fontFamily:'JetBrains Mono,monospace',fontSize:'1.2rem',fontWeight:700,letterSpacing:'-0.02em',marginBottom:'4px',color:C.text}}>Welcome back</h2>
                 <p style={{fontSize:'13px',color:C.muted,marginBottom:'1.25rem'}}>New here? <span onClick={()=>switchModal('signup')} style={{color:C.text,fontWeight:600,cursor:'pointer',textDecoration:'underline'}}>Create account</span></p>
-                <div style={{marginBottom:'10px'}}><label style={lbl}>College email</label><input type="email" style={inp} placeholder={`cb.en.u4cse22xxx${DOMAIN}`} value={si.email} onChange={e=>setSi(p=>({...p,email:e.target.value}))}/></div>
+                <div style={{marginBottom:'10px'}}><label style={lbl}>College email</label><input type="email" style={inp} placeholder={`ch.sc.u4cse22xxx${DOMAIN}`} value={si.email} onChange={e=>setSi(p=>({...p,email:e.target.value}))}/></div>
                 <div style={{marginBottom:'6px'}}><label style={lbl}>Password</label><input type="password" style={inp} placeholder="Your password" value={si.password} onChange={e=>setSi(p=>({...p,password:e.target.value}))}/></div>
                 <div style={{textAlign:'right',marginBottom:'1rem'}}><span onClick={()=>setForgot(true)} style={{fontSize:'12px',color:C.muted,cursor:'pointer',textDecoration:'underline'}}>Forgot password?</span></div>
                 <button className="land-p" onClick={handleSignin} style={{width:'100%',padding:'11px'}}>Sign in</button>

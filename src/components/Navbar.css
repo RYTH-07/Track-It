@@ -1,0 +1,680 @@
+/* ===== Track-It Navbar — glass + shine ===== */
+
+.tk-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 14px 22px 16px;
+  border-radius: 0 0 20px 20px;
+  overflow: hidden;
+
+  background: linear-gradient(
+    160deg,
+    rgba(46, 32, 80, 0.55) 0%,
+    rgba(20, 14, 38, 0.65) 55%,
+    rgba(12, 9, 24, 0.7) 100%
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(168, 132, 255, 0.18);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+/* animated diagonal shine sweep across the glass */
+.tk-navbar::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.08) 55%,
+    transparent 100%
+  );
+  transform: rotate(8deg);
+  animation: tk-shine-sweep 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tk-shine-sweep {
+  from {
+    left: -60%;
+  }
+  to {
+    left: 130%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tk-navbar::before { animation: none; }
+}
+
+/* ---------- top row ---------- */
+
+.tk-topbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.tk-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.tk-brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  background: linear-gradient(135deg, #a855f7, #6d28d9);
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.45);
+}
+
+.tk-brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f4f0ff;
+  letter-spacing: 0.2px;
+}
+
+/* ---------- stat pills ---------- */
+
+.tk-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.tk-stat {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.tk-stat:hover {
+  transform: translateY(-1px);
+}
+
+/* shine sweep across each stat pill */
+.tk-stat::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: tk-stat-shine 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.tk-stat--streak::after { animation-delay: 0s; }
+.tk-stat--rank::after { animation-delay: 0.4s; }
+.tk-stat--xp::after { animation-delay: 0.8s; }
+.tk-stat--due::after { animation-delay: 1.2s; }
+.tk-stat--solved::after { animation-delay: 1.6s; }
+
+@keyframes tk-stat-shine {
+  0% { left: -120%; }
+  35% { left: 130%; }
+  100% { left: 130%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-stat::after { animation: none; }
+}
+
+.tk-stat-value {
+  color: #fff;
+}
+
+.tk-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.75;
+}
+
+/* ---------- streak: firecracker burst wrapper ---------- */
+
+.tk-stat-streak-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* radial "bang" flash behind the pill, timed with the pop */
+.tk-stat-streak-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.55), transparent 70%);
+  opacity: 0;
+  animation: tk-pop-flash 2.6s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes tk-pop-flash {
+  0%, 90% { opacity: 0; transform: scale(0.75); }
+  93% { opacity: 0.9; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+/* embers: little sparks bursting up and outward from the flame */
+.tk-ember {
+  position: absolute;
+  bottom: 10px;
+  left: 22px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff, #fbbf24 55%, transparent 100%);
+  box-shadow: 0 0 4px 1px rgba(251, 191, 36, 0.85);
+  opacity: 0;
+  pointer-events: none;
+  animation: tk-ember-burst 1.7s ease-out infinite;
+}
+
+.tk-ember-1 { --tx: -22px; --ty: -34px; width: 3px; height: 3px; animation-delay: 0s; }
+.tk-ember-2 { --tx: 10px;  --ty: -44px; width: 2px; height: 2px; animation-delay: 0.25s; }
+.tk-ember-3 { --tx: -8px;  --ty: -52px; width: 3px; height: 3px; animation-delay: 0.55s; }
+.tk-ember-4 { --tx: 26px;  --ty: -30px; width: 2px; height: 2px; animation-delay: 0.85s; }
+.tk-ember-5 { --tx: -30px; --ty: -22px; width: 2px; height: 2px; animation-delay: 1.1s; }
+.tk-ember-6 { --tx: 4px;   --ty: -58px; width: 3px; height: 3px; animation-delay: 1.4s; }
+
+@keyframes tk-ember-burst {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(1);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx), var(--ty)) scale(0.3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-stat-streak-wrap::before,
+  .tk-ember {
+    animation: none;
+    display: none;
+  }
+}
+
+/* streak — the hero stat: bigger, always glowing, flickering flame, popping */
+.tk-stat--streak {
+  padding: 9px 16px;
+  font-size: 14px;
+  border-width: 1.5px;
+  border-color: rgba(251, 146, 60, 0.55);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(251, 191, 36, 0.14));
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.35);
+  animation: tk-streak-pulse 2.4s ease-in-out infinite, tk-streak-pop 2.6s ease-in-out infinite;
+}
+
+.tk-stat--streak .tk-stat-icon {
+  color: #fbbf24;
+  animation: tk-flame-flicker 1.6s ease-in-out infinite;
+}
+
+.tk-stat--streak .tk-stat-value {
+  font-size: 15px;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.55);
+}
+
+.tk-stat--streak .tk-stat-label {
+  color: #fed7aa;
+  opacity: 0.9;
+}
+
+.tk-stat--streak:hover {
+  box-shadow: 0 0 30px rgba(249, 115, 22, 0.6);
+}
+
+@keyframes tk-streak-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(249, 115, 22, 0.35); }
+  50% { box-shadow: 0 0 26px rgba(249, 115, 22, 0.65), 0 0 8px rgba(251, 191, 36, 0.4); }
+}
+
+/* the "bang" — a quick punch scale timed with the ember burst and flash */
+@keyframes tk-streak-pop {
+  0%, 88%, 100% { transform: scale(1); }
+  91% { transform: scale(1.1); }
+  95% { transform: scale(0.97); }
+  98% { transform: scale(1.02); }
+}
+
+@keyframes tk-flame-flicker {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.5)); }
+  30% { transform: scale(1.14) rotate(-5deg); }
+  60% { transform: scale(0.94) rotate(4deg); filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.85)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-stat--streak,
+  .tk-stat--streak .tk-stat-icon {
+    animation: none;
+  }
+}
+
+/* rank — teal/leaf */
+.tk-stat--rank {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(52, 211, 153, 0.08));
+}
+.tk-stat--rank .tk-stat-icon { color: #34d399; }
+.tk-stat--rank:hover { box-shadow: 0 0 16px rgba(16, 185, 129, 0.35); }
+
+/* xp — violet + gold spark */
+.tk-stat--xp {
+  border-color: rgba(167, 139, 250, 0.35);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(250, 204, 21, 0.08));
+}
+.tk-stat--xp .tk-stat-icon { color: #facc15; }
+.tk-stat--xp:hover { box-shadow: 0 0 16px rgba(139, 92, 246, 0.4); }
+
+/* due — cyan */
+.tk-stat--due {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(56, 189, 248, 0.08));
+}
+.tk-stat--due .tk-stat-icon { color: #38bdf8; }
+.tk-stat--due:hover { box-shadow: 0 0 16px rgba(14, 165, 233, 0.35); }
+
+/* solved — green check */
+.tk-stat--solved {
+  border-color: rgba(74, 222, 128, 0.35);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(74, 222, 128, 0.08));
+}
+.tk-stat--solved .tk-stat-icon { color: #4ade80; }
+.tk-stat--solved:hover { box-shadow: 0 0 16px rgba(34, 197, 94, 0.35); }
+
+/* ---------- utility icons ---------- */
+
+.tk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tk-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d8d2f0;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.tk-icon-btn:hover {
+  background: rgba(168, 132, 255, 0.16);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.tk-icon-btn--danger:hover {
+  background: rgba(248, 113, 113, 0.16);
+  color: #f87171;
+}
+
+/* ---------- divider ---------- */
+
+.tk-divider {
+  height: 1px;
+  margin: 14px 0 12px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(168, 132, 255, 0.25) 20%,
+    rgba(168, 132, 255, 0.25) 80%,
+    transparent
+  );
+}
+
+/* ---------- nav row ---------- */
+
+.tk-nav {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tk-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #b9b2d6;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.tk-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.tk-nav-item--active {
+  color: #fff;
+  background: linear-gradient(135deg, #9333ea, #6d28d9);
+  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.45);
+}
+
+.tk-nav-item--active:hover {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  .tk-stats { order: 3; width: 100%; }
+  .tk-actions { margin-left: 0; }
+}
+
+@media (max-width: 560px) {
+  .tk-nav-item span { display: none; }
+  .tk-nav-item { padding: 9px 10px; }
+}
+/* ===== Track-It Navbar — LIGHT glass + golden ray shine ===== */
+/* Scoped under html.light so it only activates in light mode and overrides the dark theme rules. */
+
+/* =========================================================================
+   Track-It Navbar — LIGHT THEME override
+   Purple glass + a soft light ray sweeping left → right every 10s
+   Scope: everything below lives under `html.light` so it only applies
+   when the <html> element has the "light" class, and it sits safely
+   alongside your existing dark-theme rules.
+   ========================================================================= */
+
+html.light .tk-navbar {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(243, 236, 255, 0.65) 55%,
+    rgba(230, 218, 255, 0.55) 100%
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(147, 51, 234, 0.16);
+  box-shadow:
+    0 8px 32px rgba(109, 40, 217, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset,
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+/* the big diagonal purple light ray sweeping across the glass, 10s */
+html.light .tk-navbar::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(168, 85, 247, 0.10) 40%,
+    rgba(196, 148, 255, 0.38) 50%,
+    rgba(168, 85, 247, 0.10) 60%,
+    transparent 100%
+  );
+  transform: rotate(8deg);
+  animation: tk-shine-sweep-light 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tk-shine-sweep-light {
+  from { left: -60%; }
+  to   { left: 130%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.light .tk-navbar::before { animation: none; }
+}
+
+/* ---------- top row / brand ---------- */
+
+html.light .tk-brand-mark {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
+  color: #fff;
+}
+
+html.light .tk-brand-name {
+  color: #3b1e6d;
+}
+
+/* ---------- stat pills ---------- */
+
+html.light .tk-stat {
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 2px rgba(109, 40, 217, 0.06) inset;
+}
+
+html.light .tk-stat-value {
+  color: #3b1e6d;
+}
+
+html.light .tk-stat-label {
+  color: #7c5cb8;
+  opacity: 0.85;
+}
+
+/* light-theme shine sweep on each pill — softer, whiter-purple */
+html.light .tk-stat::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(168, 85, 247, 0.45) 50%,
+    transparent 100%
+  );
+}
+
+/* ---------- streak: firecracker burst (light) ---------- */
+
+html.light .tk-stat-streak-wrap::before {
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.55), transparent 70%);
+}
+
+html.light .tk-ember {
+  background: radial-gradient(circle, #fff, #c084fc 55%, transparent 100%);
+  box-shadow: 0 0 4px 1px rgba(168, 85, 247, 0.75);
+}
+
+html.light .tk-stat--streak {
+  border-color: rgba(168, 85, 247, 0.4);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(196, 148, 255, 0.10));
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+}
+
+html.light .tk-stat--streak .tk-stat-icon {
+  color: #9333ea;
+}
+
+html.light .tk-stat--streak .tk-stat-value {
+  color: #3b1e6d;
+  text-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+}
+
+html.light .tk-stat--streak .tk-stat-label {
+  color: #7c3aed;
+  opacity: 0.9;
+}
+
+html.light .tk-stat--streak:hover {
+  box-shadow: 0 0 26px rgba(168, 85, 247, 0.4);
+}
+
+@keyframes tk-streak-pulse-light {
+  0%, 100% { box-shadow: 0 0 14px rgba(168, 85, 247, 0.25); }
+  50%      { box-shadow: 0 0 24px rgba(168, 85, 247, 0.5), 0 0 8px rgba(196, 148, 255, 0.35); }
+}
+
+html.light .tk-stat--streak {
+  animation: tk-streak-pulse-light 2.4s ease-in-out infinite, tk-streak-pop 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.light .tk-stat--streak,
+  html.light .tk-stat--streak .tk-stat-icon {
+    animation: none;
+  }
+}
+
+/* rank — soft violet-lilac */
+html.light .tk-stat--rank {
+  border-color: rgba(147, 51, 234, 0.28);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.14), rgba(196, 148, 255, 0.08));
+}
+html.light .tk-stat--rank .tk-stat-icon { color: #9333ea; }
+html.light .tk-stat--rank:hover { box-shadow: 0 0 16px rgba(147, 51, 234, 0.25); }
+
+/* xp — violet + gold spark, kept warm against light glass */
+html.light .tk-stat--xp {
+  border-color: rgba(147, 51, 234, 0.28);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.14), rgba(250, 204, 21, 0.10));
+}
+html.light .tk-stat--xp .tk-stat-icon { color: #ca8a04; }
+html.light .tk-stat--xp:hover { box-shadow: 0 0 16px rgba(147, 51, 234, 0.3); }
+
+/* due — cool violet-blue, tied back into the purple family */
+html.light .tk-stat--due {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(168, 85, 247, 0.08));
+}
+html.light .tk-stat--due .tk-stat-icon { color: #7c3aed; }
+html.light .tk-stat--due:hover { box-shadow: 0 0 16px rgba(124, 58, 237, 0.25); }
+
+/* solved — muted plum-green so it still reads as "done" without breaking theme */
+html.light .tk-stat--solved {
+  border-color: rgba(147, 51, 234, 0.24);
+  background: linear-gradient(135deg, rgba(126, 34, 206, 0.12), rgba(74, 222, 128, 0.10));
+}
+html.light .tk-stat--solved .tk-stat-icon { color: #16a34a; }
+html.light .tk-stat--solved:hover { box-shadow: 0 0 16px rgba(126, 34, 206, 0.22); }
+
+/* ---------- utility icons ---------- */
+
+html.light .tk-actions {
+  border-left: 1px solid rgba(147, 51, 234, 0.14);
+}
+
+html.light .tk-icon-btn {
+  border: 1px solid rgba(147, 51, 234, 0.14);
+  background: rgba(255, 255, 255, 0.5);
+  color: #6d4a9c;
+}
+
+html.light .tk-icon-btn:hover {
+  background: rgba(168, 85, 247, 0.14);
+  color: #3b1e6d;
+}
+
+html.light .tk-icon-btn--danger:hover {
+  background: rgba(248, 113, 113, 0.16);
+  color: #dc2626;
+}
+
+/* ---------- divider ---------- */
+
+html.light .tk-divider {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(147, 51, 234, 0.22) 20%,
+    rgba(147, 51, 234, 0.22) 80%,
+    transparent
+  );
+}
+
+/* ---------- nav row ---------- */
+
+html.light .tk-nav-item {
+  color: #6d4a9c;
+}
+
+html.light .tk-nav-item:hover {
+  background: rgba(168, 85, 247, 0.08);
+  color: #3b1e6d;
+}
+
+html.light .tk-nav-item--active {
+  color: #fff;
+  background: linear-gradient(135deg, #9333ea, #7c3aed);
+  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.35);
+}
+
+html.light .tk-nav-item--active:hover {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+}
+html.light .tk-stat-label{
+    color:#8B5CF6 !important;
+    opacity:1 !important;
+}
+
+html.light .tk-stat-value{
+    color:#6D28D9 !important;
+    font-weight:700;
+}
