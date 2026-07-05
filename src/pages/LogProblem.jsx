@@ -3,7 +3,7 @@ import { Plus, Link, ChevronRight } from 'lucide-react'
 import TopicInput from '../components/TopicInput.jsx'
 import CodeSnippetInput from '../components/CodeSnippetInput.jsx'
 import MarkdownEditor from '../components/MarkdownEditor.jsx'
-import { detectLanguage } from '../utils/detectLanguage'
+import { detectLanguage } from '../lib/detectLanguage.js'
 import toast from 'react-hot-toast'
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
@@ -45,13 +45,11 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
     setLoading(false)
   }
 
-  console.log("Notebooks:", notebooks)
-  
   return (
     <div className="max-w-xl mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-          <Plus size={20} className="text-violet-400" /> Log a Problem
+          <Plus size={20} style={{ color: 'var(--accent)' }} /> Log a Problem
         </h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
           Add to your matrix — SR scheduling starts immediately
@@ -107,7 +105,7 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
               </option>
             ))}
           </select>
-          
+
           <div className="flex flex-wrap gap-2 mt-2">
             {topics.map((topic) => (
               <span
@@ -120,7 +118,7 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
             ))}
           </div>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            Press Enter or comma to add each topic
+            Select a topic from the dropdown to tag this problem
           </p>
         </div>
 

@@ -40,13 +40,13 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-            <CheckCircle2 size={20} className="text-violet-400" /> Review Queue
+            <CheckCircle2 size={20} style={{ color: 'var(--accent)' }} /> Review Queue
           </h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             Cards due for spaced repetition today
           </p>
         </div>
-        <span className="badge" style={{ background: dueProblems.length > 0 ? 'rgba(124,58,237,0.2)' : 'rgba(34,197,94,0.15)', color: dueProblems.length > 0 ? '#A78BFA' : '#4ADE80', border: `1px solid ${dueProblems.length > 0 ? 'rgba(124,58,237,0.4)' : 'rgba(34,197,94,0.3)'}`, fontSize: 13 }}>
+        <span className="badge" style={{ background: dueProblems.length > 0 ? 'var(--accent-glow)' : 'rgba(34,197,94,0.15)', color: dueProblems.length > 0 ? 'var(--accent)' : '#4ADE80', border: `1px solid ${dueProblems.length > 0 ? 'var(--accent)' : 'rgba(34,197,94,0.3)'}`, fontSize: 13 }}>
           {dueProblems.length} due
         </span>
       </div>
@@ -83,18 +83,18 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
       )}
 
       {dueProblems.length > 0 && (
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.8)]">
+        <div className="card-glass rounded-[28px] p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.22em] text-slate-500">Ready to review</p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">{dueProblems.length} cards due today</h2>
-              <p className="mt-1 text-sm text-slate-400">Start a focused review session now.</p>
+              <p className="text-sm uppercase tracking-[0.22em]" style={{ color: 'var(--text-muted)' }}>Ready to review</p>
+              <h2 className="mt-2 text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{dueProblems.length} cards due today</h2>
+              <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Start a focused review session now.</p>
             </div>
 
             <button
               type="button"
               onClick={handleStartReview}
-              className="rounded-3xl bg-violet-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-400"
+              className="btn btn-primary rounded-3xl px-5 py-3 text-sm"
             >
               Start review
             </button>
@@ -106,14 +106,14 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
       {dueProblems.length === 0 ? (
         <div className="text-center py-16 animate-fade-in">
           <div className="mb-6 flex justify-center">
-  <div className="flex h-16 w-16 items-center justify-center rounded-full border border-violet-400/20 bg-violet-500/10 backdrop-blur-xl">
-    <CircleCheckBig
-      size={30}
-      className="text-violet-300"
-      strokeWidth={1.8}
-    />
-  </div>
-</div>
+            <div className="flex h-16 w-16 items-center justify-center rounded-full backdrop-blur-xl" style={{ border: '1px solid var(--border)', background: 'var(--accent-glow)' }}>
+              <CircleCheckBig
+                size={30}
+                style={{ color: 'var(--accent)' }}
+                strokeWidth={1.8}
+              />
+            </div>
+          </div>
           <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>You're all caught up!</h2>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             No reviews due right now.{' '}

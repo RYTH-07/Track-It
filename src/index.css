@@ -182,14 +182,7 @@ html.light .card {
     border: none;
     outline: none;
   }
-  html.light .difficulty-medium{
-
-    background:#FEF8E8;
-
-    color:#B45309;
-
-    border-color:#FCD34D;
-}
+  
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .btn-primary {
@@ -402,6 +395,22 @@ inset 0 1px rgba(255,255,255,.08);
 
 }
 
+/* Themed glass card — use instead of raw Tailwind slate/white classes
+     so review UI respects dark/light toggle */
+  .card-glass {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+  }
+  .card-glass-inner {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+  }
+  .text-muted-themed { color: var(--text-muted); }
+  .text-secondary-themed { color: var(--text-secondary); }
+
 /* Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
@@ -548,34 +557,25 @@ inset 0 1px rgba(255,255,255,.08);
 }
 
 .filter-select {
-  width: 180px;
-  height: 42px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
-  color: var(--text-primary);
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: #8B5CF6;
-}
-.filter-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  background: #1b1b2f;
-  color: #f8fafc;
-
-  border: 1px solid rgba(255,255,255,.08);
-}
-
-.filter-select option {
-  background: #1b1b2f;
-  color: #f8fafc;
-}
+    width: 180px;
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #1b1b2f;
+    color: #f8fafc;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .filter-select:focus {
+    outline: none;
+    border-color: #8B5CF6;
+  }
+  .filter-select option {
+    background: #1b1b2f;
+    color: #f8fafc;
+  }
 /* =====================================================
    LIGHT MODE
    ===================================================== */

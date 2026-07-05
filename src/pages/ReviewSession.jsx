@@ -21,7 +21,7 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
   const nextDisabled = slideIndex >= sortedDue.length - 1
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div className="relative min-h-screen flex flex-col justify-center px-4 py-8 sm:px-10">
         {currentProblem ? (
           <div className="relative mx-auto w-full max-w-5xl">
@@ -35,7 +35,10 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
                 ‹
               </button>
             </div>
-            <div className="overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/95 p-6 shadow-[0_40px_120px_-40px_rgba(15,23,42,0.9)]">
+            <div
+              className="overflow-hidden rounded-[30px] p-6"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
               <ReviewCard
                 key={currentProblem.id}
                 problem={currentProblem}
@@ -53,12 +56,12 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
                 ›
               </button>
             </div>
-            <div className="mt-6 flex items-center justify-between text-sm text-slate-400">
+            <div className="mt-6 flex items-center justify-between text-sm" style={{ color: 'var(--text-secondary)' }}>
               <div>{slideIndex + 1} / {sortedDue.length} review cards</div>
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:bg-white/10"
+                className="btn btn-ghost rounded-full"
               >
                 Exit review
               </button>
@@ -66,11 +69,11 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-lg font-semibold">No review cards ready.</p>
+            <p className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>No review cards ready.</p>
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
-              className="mt-4 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:bg-white/10"
+              className="btn btn-ghost rounded-full mt-4"
             >
               Back to dashboard
             </button>

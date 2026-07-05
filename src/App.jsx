@@ -44,7 +44,11 @@ function applyTheme(dark) {
 // ─── Main App (inner, has router context) ────────────────────────────────────
 function AppInner() {
   const navigate = useNavigate()
+  const location = useLocation() // ✅ moved above all early returns — fixes Rules of Hooks violation
   const [darkMode, setDarkMode] = useState(true)
+  const [logoutModal, setLogoutModal] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
+
   // Apply theme on mount + change
   useEffect(() => { applyTheme(darkMode) }, [darkMode])
 
@@ -62,20 +66,18 @@ function AppInner() {
 
   // ── Data hooks (only active when logged in) ──
   const {
-  problems,
-  loading: probLoading,
-  dueProblems,
-  addProblem,
-  reviewProblem,
-  updateNotes,
-  deleteProblem,
-  importProblems,
-  refetch
-} = useProblems(user?.id)
+    problems,
+    loading: probLoading,
+    dueProblems,
+    addProblem,
+    reviewProblem,
+    updateNotes,
+    deleteProblem,
+    importProblems,
+    refetch
+  } = useProblems(user?.id)
 
-  //  AFTER (Fixed and Clean)
-const { notebooks, upsertNotebook, deleteNotebook, refetch: refetchNotebooks } = useNotebooks(user?.id)
-console.log("App.jsx Source Notebooks:", notebooks)
+  const { notebooks, upsertNotebook, deleteNotebook, refetch: refetchNotebooks } = useNotebooks(user?.id)
 
   const { stats, awardXP, updateWeeklyGoal, recheckAchievements } = useStats(user?.id, problems, notebooks)
 
@@ -83,29 +85,25 @@ console.log("App.jsx Source Notebooks:", notebooks)
 
   // ── Handlers ──
   const handleSignOut = () => {
-  setLogoutModal(true)
-}
-const confirmLogout = async () => {
-  setLoggingOut(true)
-
-  await signOut()
-
-  setLoggingOut(false)
-  setLogoutModal(false)
-
-  navigate('/')
-}
-
- const handleAddProblem = async (fields) => {
-  const { data, error, xpEarned } = await addProblem(fields)
-
-  if (!error) {
-    await refetch()
-    await awardXP(xpEarned)
+    setLogoutModal(true)
   }
 
-  return { data, error }
-}
+  const confirmLogout = async () => {
+    setLoggingOut(true)
+    await signOut()
+    setLoggingOut(false)
+    setLogoutModal(false)
+    navigate('/')
+  }
+
+  const handleAddProblem = async (fields) => {
+    const { data, error, xpEarned } = await addProblem(fields)
+    if (!error) {
+      await refetch()
+      await awardXP(xpEarned)
+    }
+    return { data, error }
+  }
 
   const handleReview = async (problemId, rating) => {
     const { data, error, xpEarned } = await reviewProblem(problemId, rating)
@@ -128,8 +126,6 @@ const confirmLogout = async () => {
   const handleDeleteNotebook = async (id) => {
     await deleteNotebook(id)
   }
-  const [logoutModal, setLogoutModal] = useState(false)
-const [loggingOut, setLoggingOut] = useState(false)
 
   // ── Loading state ──
   if (authLoading) {
@@ -137,7 +133,7 @@ const [loggingOut, setLoggingOut] = useState(false)
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
         <div className="text-center">
           <div className="w-10 h-10 rounded-xl mx-auto mb-4 flex items-center justify-center text-white font-bold"
-            style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', animation: 'pulse 1.5s ease-in-out infinite' }}>T</div>
+            style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', animation: 'pulse 1.5s ease-in-out infinite' }}>T</div>
           <p className="text-sm" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono,monospace' }}>Loading...</p>
         </div>
       </div>
@@ -168,11 +164,10 @@ const [loggingOut, setLoggingOut] = useState(false)
 
   // ── Authenticated app ──
   const unlockedIds = stats?.unlocked_achievements || []
-  const location = useLocation()
   const showNavbar = location.pathname !== '/review'
 
   return (
-   <div className="min-h-screen app-bg text-white">
+    <div className="min-h-screen app-bg text-white">
       {showNavbar && (
         <Navbar
           stats={stats}
@@ -204,14 +199,12 @@ const [loggingOut, setLoggingOut] = useState(false)
               onNotesChange={updateNotes}
             />
           } />
-         <Route path="/log" element={
+          <Route path="/log" element={
             <LogProblem onAdd={handleAddProblem} notebooks={notebooks} />
-            
-          }
-            />
+          } />
           <Route path="/problems" element={
             <Problems problems={problems} onDelete={deleteProblem} onUpdate={updateNotes} />
-          } />  
+          } />
           <Route path="/topics" element={
             <Topics
               problems={problems}
@@ -249,74 +242,56 @@ const [loggingOut, setLoggingOut] = useState(false)
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
+
       <Modal
-  open={logoutModal}
-  onClose={() => {
-    if (!loggingOut) setLogoutModal(false)
-  }}
-  title="Sign Out"
-  maxWidth={420}
->
-  <div className="space-y-5">
-
-    <div className="flex items-center gap-4">
-
-      <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center"
-        style={{
-          background: "rgba(124,58,237,.12)",
-          color: "#A78BFA"
+        open={logoutModal}
+        onClose={() => {
+          if (!loggingOut) setLogoutModal(false)
         }}
+        title="Sign Out"
+        maxWidth={420}
       >
-        👋
-      </div>
+        <div className="space-y-5">
+          <div className="flex items-center gap-4">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              style={{
+                background: "var(--accent-glow)",
+                color: "var(--accent)"
+              }}
+            >
+              👋
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg" style={{ color: "var(--text-primary)" }}>
+                Sign Out?
+              </h3>
+              <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+                You're about to sign out of Track-It.
+                <br /><br />
+                Your progress has already been saved.
+              </p>
+            </div>
+          </div>
 
-      <div>
-
-        <h3
-          className="font-semibold text-lg"
-          style={{ color: "var(--text-primary)" }}
-        >
-          Sign Out?
-        </h3>
-
-        <p
-          className="text-sm mt-1"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          You're about to sign out of Track-It.
-
-          <br /><br />
-
-          Your progress has already been saved.
-        </p>
-
-      </div>
-
-    </div>
-
-    <div className="flex justify-end gap-3">
-
-      <button
-        className="btn btn-ghost"
-        disabled={loggingOut}
-        onClick={() => setLogoutModal(false)}
-      >
-        Stay Logged In
-      </button>
-
-      <button
-        className="btn btn-primary"
-        disabled={loggingOut}
-        onClick={confirmLogout}
-      >
-        {loggingOut ? "Signing Out..." : "Sign Out"}
-      </button>
-
-    </div>
-
-  </div>
-</Modal>
+          <div className="flex justify-end gap-3">
+            <button
+              className="btn btn-ghost"
+              disabled={loggingOut}
+              onClick={() => setLogoutModal(false)}
+            >
+              Stay Logged In
+            </button>
+            <button
+              className="btn btn-primary"
+              disabled={loggingOut}
+              onClick={confirmLogout}
+            >
+              {loggingOut ? "Signing Out..." : "Sign Out"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

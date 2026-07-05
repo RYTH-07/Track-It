@@ -16,7 +16,6 @@ export function useStats(userId, problems, notebooks) {
       .eq('user_id', userId)
       .single()
     if (!error && data) {
-      // Check if week_start is stale (not current Monday) — reset week_count
       const currentWeekStart = getWeekStart(today())
       if (data.week_start !== currentWeekStart) {
         const updated = await supabase
@@ -29,7 +28,6 @@ export function useStats(userId, problems, notebooks) {
       }
       setStats(data)
     } else if (error?.code === 'PGRST116') {
-      // Row doesn't exist yet — create it
       const newRow = {
         user_id: userId,
         xp: 0,
@@ -51,7 +49,6 @@ export function useStats(userId, problems, notebooks) {
     fetchStats()
   }, [fetchStats])
 
-  /** Award XP from a review/log action. Also updates streak, week_count, achievements. */
   const awardXP = useCallback(async (xpAmount) => {
     if (!userId || !stats) return
     const t = today()
@@ -61,7 +58,6 @@ export function useStats(userId, problems, notebooks) {
     const newLongest = Math.max(stats.longest_streak || 0, newStreak)
     const totalReviews = (stats.total_reviews || 0) + 1
 
-    // Check rank change
     const prevRank = getRankFromXP(stats.xp || 0)
     const newRank = getRankFromXP(newXP)
     if (newRank.name !== prevRank.name) {
@@ -78,9 +74,6 @@ export function useStats(userId, problems, notebooks) {
       total_reviews: totalReviews,
     }
 
-    // Check achievements
-    console.log("Problems:", problems.length);
-    console.log("Unlocked:", stats.unlocked_achievements);
     const newlyUnlocked = checkNewAchievements({
       unlockedIds: stats.unlocked_achievements || [],
       stats: updatedStats,
@@ -89,7 +82,6 @@ export function useStats(userId, problems, notebooks) {
     })
 
     if (newlyUnlocked.length > 0) {
-      console.log("New achievements:", newlyUnlocked);
       const allUnlocked = [...(stats.unlocked_achievements || []), ...newlyUnlocked]
       updatedStats.unlocked_achievements = allUnlocked
       newlyUnlocked.forEach(id => {
@@ -112,8 +104,6 @@ export function useStats(userId, problems, notebooks) {
       .eq('user_id', userId)
       .select()
       .single()
-      console.log("Supabase update error:", error);
-      console.log("Supabase update data:", data);
 
     if (!error) setStats(data)
     return { data, error }
@@ -131,7 +121,6 @@ export function useStats(userId, problems, notebooks) {
     return { data, error }
   }, [userId])
 
-  /** Call after adding a notebook to re-check scholar/librarian achievements */
   const recheckAchievements = useCallback(async () => {
     if (!userId || !stats) return
     const newlyUnlocked = checkNewAchievements({

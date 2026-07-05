@@ -25,7 +25,7 @@ const GRADES = [
     classes: "border-amber-500/25 text-amber-400 hover:border-amber-500/60 hover:bg-amber-500/10" },
   { key: "good", label: "Good", sub: "7 days", icon: Check,
     classes: "border-emerald-500/25 text-emerald-400 hover:border-emerald-500/60 hover:bg-emerald-500/10" },
-  { key: "master", label: "Master", sub: "21 days", icon: Star,
+  { key: "master", label: "Master", sub: "14 days", icon: Star,
     classes: "border-violet-500/25 text-violet-300 hover:border-violet-500/60 hover:bg-violet-500/10" },
 ];
 
@@ -99,21 +99,22 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
 
   const notesPreview = notesDraft ? (
     <div
-      className="prose prose-invert max-w-none space-y-3 text-slate-100"
+      className="prose prose-invert max-w-none space-y-3"
+      style={{ color: 'var(--text-primary)' }}
       dangerouslySetInnerHTML={{ __html: renderMarkdown(notesDraft) }}
     />
   ) : (
-    <p className="text-sm leading-6 text-slate-400">No notes written yet.</p>
+    <p className="text-sm leading-6" style={{ color: 'var(--text-muted)' }}>No notes written yet.</p>
   );
 
   const syntaxPreview = codeDraft ? (
-    <pre className="mt-3 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-sm text-slate-100"><code>{codeDraft}</code></pre>
+    <pre className="mt-3 overflow-x-auto rounded-2xl p-4 text-sm" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}><code>{codeDraft}</code></pre>
   ) : (
-    <p className="text-sm leading-6 text-slate-400">No syntax snippets yet.</p>
+    <p className="text-sm leading-6" style={{ color: 'var(--text-muted)' }}>No syntax snippets yet.</p>
   );
 
   return (
-    <div className="card rounded-[24px] border border-white/10 bg-slate-950/80 p-6 shadow-[0_30px_70px_-35px_rgba(15,23,42,0.9)]">
+    <div className="card-glass rounded-[24px] p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -126,13 +127,13 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
               {formatDifficulty(problem.difficulty)}
             </span>
             {problem.mastery && (
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>
                 {problem.mastery}
               </span>
             )}
           </div>
 
-          <h2 className="mt-3 text-2xl font-semibold text-white truncate">
+          <h2 className="mt-3 text-2xl font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
             {problem.title || "Untitled problem"}
           </h2>
 
@@ -141,7 +142,8 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
               href={problem.url}
               target="_blank"
               rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1 text-sm text-violet-300 transition hover:text-violet-200"
+              className="mt-3 inline-flex items-center gap-1 text-sm transition"
+              style={{ color: 'var(--accent)' }}
             >
               <ExternalLink className="h-4 w-4" />
               View problem
@@ -165,32 +167,33 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
           )}
         </div>
 
-        <div className="grid gap-2 text-right text-xs text-slate-400 sm:min-w-[140px]">
+        <div className="grid gap-2 text-right text-xs sm:min-w-[140px]" style={{ color: 'var(--text-secondary)' }}>
           <div>
-            <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Next review</div>
-            <div className="mt-1 font-mono text-white">{problem.next_review || "TBD"}</div>
+            <div className="text-[11px] uppercase tracking-[0.22em]" style={{ color: 'var(--text-muted)' }}>Next review</div>
+            <div className="mt-1 font-mono" style={{ color: 'var(--text-primary)' }}>{problem.next_review || "TBD"}</div>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Reviews</div>
-            <div className="mt-1 font-mono text-white">{problem.review_count ?? 0}</div>
+            <div className="text-[11px] uppercase tracking-[0.22em]" style={{ color: 'var(--text-muted)' }}>Reviews</div>
+            <div className="mt-1 font-mono" style={{ color: 'var(--text-primary)' }}>{problem.review_count ?? 0}</div>
           </div>
         </div>
       </div>
 
-      <div className="mt-6 rounded-3xl border border-white/5 bg-slate-900/80 p-5">
+      <div className="card-glass-inner mt-6 rounded-3xl p-5">
         <div className="space-y-5">
           <div>
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-white">Notes</p>
-                <p className="text-xs text-slate-500">Markdown-supported recall notes.</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Notes</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Markdown-supported recall notes.</p>
               </div>
               <div className="flex items-center gap-3">
                 {!editing && (
                   <button
                     type="button"
                     onClick={() => setRevealedNotes((v) => !v)}
-                    className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300 transition hover:text-violet-200"
+                    className="text-xs font-semibold uppercase tracking-[0.18em] transition"
+                    style={{ color: 'var(--accent)' }}
                   >
                     {revealedNotes ? "Hide" : "Reveal"}
                   </button>
@@ -198,7 +201,8 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
                 <button
                   type="button"
                   onClick={() => setEditing((value) => !value)}
-                  className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300 transition hover:text-violet-200"
+                  className="text-xs font-semibold uppercase tracking-[0.18em] transition"
+                  style={{ color: 'var(--accent)' }}
                 >
                   {editing ? "Cancel" : "Edit"}
                 </button>
@@ -211,23 +215,24 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
                   value={notesDraft}
                   onChange={(e) => setNotesDraft(e.target.value)}
                   rows={6}
-                  className="w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-400"
+                  className="input w-full"
                   placeholder="Write markdown notes here..."
                 />
-                <div className="rounded-3xl border border-white/10 bg-slate-950 p-4">
-                  <div className="mb-2 text-xs uppercase tracking-[0.18em] text-slate-500">Preview</div>
+                <div className="rounded-3xl p-4" style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
+                  <div className="mb-2 text-xs uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Preview</div>
                   <div
-                    className="prose prose-invert max-w-none text-slate-100"
+                    className="prose prose-invert max-w-none"
+                    style={{ color: 'var(--text-primary)' }}
                     dangerouslySetInnerHTML={{ __html: renderMarkdown(notesDraft) }}
                   />
                 </div>
               </div>
             ) : !revealedNotes ? (
-              <div className="mt-4 rounded-3xl border border-dashed border-white/10 bg-slate-950/70 p-6 text-center text-sm text-slate-400">
+              <div className="mt-4 rounded-3xl border border-dashed p-6 text-center text-sm" style={{ borderColor: 'var(--border)', background: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
                 Notes are hidden. Click "Reveal" to show your saved approach.
               </div>
             ) : (
-              <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/80 p-4">
+              <div className="mt-4 rounded-3xl p-4" style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
                 {notesPreview}
               </div>
             )}
@@ -236,14 +241,15 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
           <div>
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-white">Syntax</p>
-                <p className="text-xs text-slate-500">Only keep language / algorithm syntax here.</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Syntax</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Only keep language / algorithm syntax here.</p>
               </div>
               {!editing && (
                 <button
                   type="button"
                   onClick={() => setRevealedSyntax((v) => !v)}
-                  className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300 transition hover:text-violet-200"
+                  className="text-xs font-semibold uppercase tracking-[0.18em] transition"
+                  style={{ color: 'var(--accent)' }}
                 >
                   {revealedSyntax ? "Hide" : "Reveal"}
                 </button>
@@ -255,18 +261,18 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
                 value={codeDraft}
                 onChange={(e) => setCodeDraft(e.target.value)}
                 rows={4}
-                className="mt-4 w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-400"
+                className="input mt-4 w-full"
                 placeholder="e.g. max = -Infinity; for num of arr: if num > max..."
               />
             ) : !revealedSyntax ? (
-              <div className="mt-4 rounded-3xl border border-dashed border-white/10 bg-slate-950/70 p-6 text-center text-sm text-slate-400">
+              <div className="mt-4 rounded-3xl border border-dashed p-6 text-center text-sm" style={{ borderColor: 'var(--border)', background: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
                 Syntax is hidden. Click "Reveal" to show any saved snippets.
               </div>
             ) : (
-              <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/80 p-4">
+              <div className="mt-4 rounded-3xl p-4" style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)' }}>
                 <div className="flex items-center justify-between">
-                  <div className="text-xs uppercase tracking-[0.12em] text-slate-400">Detected</div>
-                  <div className="text-xs font-mono text-slate-200">{LANGUAGE_LABELS[detectedLang] || detectedLang}</div>
+                  <div className="text-xs uppercase tracking-[0.12em]" style={{ color: 'var(--text-secondary)' }}>Detected</div>
+                  <div className="text-xs font-mono" style={{ color: 'var(--text-primary)' }}>{LANGUAGE_LABELS[detectedLang] || detectedLang}</div>
                 </div>
                 {syntaxPreview}
               </div>
@@ -278,7 +284,7 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="rounded-3xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10"
+                className="btn btn-ghost"
               >
                 Cancel
               </button>
@@ -286,7 +292,7 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
                 type="button"
                 onClick={handleSaveNotes}
                 disabled={saving}
-                className="rounded-3xl bg-violet-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn btn-primary"
               >
                 {saving ? "Saving..." : "Save notes"}
               </button>
@@ -310,7 +316,7 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
             >
               <Icon className="h-4 w-4" />
               <span>{grade.label}</span>
-              <span className="text-[10px] font-normal text-slate-300">{grade.sub}</span>
+              <span className="text-[10px] font-normal" style={{ color: 'var(--text-secondary)' }}>{grade.sub}</span>
             </button>
           );
         })}
