@@ -65,7 +65,7 @@ export default function Problems({ problems, onDelete, onUpdate }) {
   <Search
     size={18}
     strokeWidth={2}
-    className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+    className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none"
     style={{ color: "var(--text-muted)" }}
   />
 
@@ -74,7 +74,7 @@ export default function Problems({ problems, onDelete, onUpdate }) {
     value={search}
     onChange={(e) => setSearch(e.target.value)}
     placeholder="Search by title, topic or notes..."
-    className="input h-[52px] w-full pl-12 pr-4 text-sm"
+    className="input h-[52px] w-full pl-10 pr-4 text-sm"
   />
 </div>
        <div className="filters-row">

@@ -22,6 +22,7 @@ import Leaderboard   from './pages/Leaderboard.jsx'
 import ImportExport  from './pages/ImportExport.jsx'
 import Profile       from './pages/Profile.jsx'
 import Modal         from './components/Modal.jsx'
+import ResetPassword from './pages/ResetPassword'
 
 // ─── Dark mode util ───────────────────────────────────────────────────────────
 function getInitialDark() {
@@ -144,6 +145,7 @@ function AppInner() {
   if (!user) {
     return (
       <Routes>
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={
           <Landing
             onSignIn={signIn}

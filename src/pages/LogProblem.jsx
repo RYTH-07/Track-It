@@ -75,13 +75,13 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
         <div>
           <label className="label" htmlFor="prob-url">URL (Optional)</label>
           <div className="relative">
-            <Link size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+            <Link size={14} className="absolute left-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
             <input
               id="prob-url"
               type="url"
               value={url}
               onChange={e => setUrl(e.target.value)}
-              className="input pl-8"
+              className="input pl-20"
               placeholder="https://leetcode.com/problems/..."
             />
           </div>
