@@ -1541,15 +1541,15 @@ export default function Landing({
 
           <div>
             <div style={footerHead}>Company</div>
-            <a href="#" style={footerLink}>About</a>
-            <a href="#" style={footerLink}>Contact</a>
-            <a href="#" style={footerLink}>Feedback</a>
+            <a href="/about" style={footerLink}>About</a>
+            <a href="/contact" style={footerLink}>Contact</a>
+            <a href="/contact" style={footerLink}>Feedback</a>
           </div>
 
           <div>
             <div style={footerHead}>Legal</div>
-            <a href="#" style={footerLink}>Privacy Policy</a>
-            <a href="#" style={footerLink}>Terms of Service</a>
+            <a href="/privacy" style={footerLink}>Privacy Policy</a>
+            <a href="/terms" style={footerLink}>Terms of Service</a>
           </div>
         </div>
 
