@@ -18,6 +18,8 @@ import {
   Moon,
   User,
   LogOut,
+  Users,
+  Mail,
 } from "lucide-react";
 import "./Navbar.css";
 
@@ -30,6 +32,8 @@ const NAV_ITEMS = [
   { to: "/achievements", label: "Achievements", icon: Award },
   { to: "/leaderboard", label: "Leaderboard", icon: TrendingUp },
   { to: "/import-export", label: "Import/Export", icon: ArrowDownUp },
+  { to: "/about", label: "About", icon: Users },  
+  { to: "/contact", label: "Contact", icon: Mail },
 ];
 
 export default function Navbar({

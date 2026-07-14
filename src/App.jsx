@@ -21,7 +21,10 @@ import Achievements  from './pages/Achievements.jsx'
 import Leaderboard   from './pages/Leaderboard.jsx'
 import ImportExport  from './pages/ImportExport.jsx'
 import Profile       from './pages/Profile.jsx'
+import About         from './pages/About.jsx'
+import Contact       from './pages/Contact.jsx'
 import Modal         from './components/Modal.jsx'
+import AppFooter      from './components/AppFooter.jsx'
 import ResetPassword from './pages/ResetPassword'
 
 // ─── Dark mode util ───────────────────────────────────────────────────────────
@@ -145,6 +148,8 @@ function AppInner() {
   if (!user) {
     return (
       <Routes>
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={
           <Landing
@@ -241,9 +246,12 @@ function AppInner() {
               onSignOut={handleSignOut}
             />
           } />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
+      {showNavbar && <AppFooter />}
 
       <Modal
         open={logoutModal}
