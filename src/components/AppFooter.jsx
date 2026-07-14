@@ -16,6 +16,8 @@ export default function AppFooter() {
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', margin: '10px 0 6px' }}>
         <a href="/about" style={{ fontSize: '12px', color: 'var(--text-secondary)', textDecoration: 'underline' }}>About</a>
         <a href="/contact" style={{ fontSize: '12px', color: 'var(--text-secondary)', textDecoration: 'underline' }}>Contact</a>
+        <a href="/privacy" style={{ fontSize: '12px', color: 'var(--text-secondary)', textDecoration: 'underline' }}>Privacy</a>
+        <a href="/terms" style={{ fontSize: '12px', color: 'var(--text-secondary)', textDecoration: 'underline' }}>Terms</a>
         <a href="https://github.com/RYTH-07/Track-It" target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: 'var(--text-secondary)', textDecoration: 'underline' }}>GitHub</a>
       </div>
       <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>

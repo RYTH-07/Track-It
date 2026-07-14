@@ -26,6 +26,8 @@ import Contact       from './pages/Contact.jsx'
 import Modal         from './components/Modal.jsx'
 import AppFooter      from './components/AppFooter.jsx'
 import ResetPassword from './pages/ResetPassword'
+import PrivacyPolicy  from './pages/PrivacyPolicy.jsx'
+import TermsOfService from './pages/TermsOfService.jsx'
 
 // ─── Dark mode util ───────────────────────────────────────────────────────────
 function getInitialDark() {
@@ -150,6 +152,8 @@ function AppInner() {
       <Routes>
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={
           <Landing
@@ -248,6 +252,8 @@ function AppInner() {
           } />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>

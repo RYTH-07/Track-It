@@ -1559,7 +1559,15 @@ export default function Landing({
         </div>
 
         <div style={{ borderTop: `1px solid ${C.ctaBorder}`, maxWidth: '1140px', margin: '0 auto', padding: '1.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <span style={{ fontSize: '11.5px', color: C.ctaSub }}>© 2026 Track-It. Built for students who want to become better programmers.</span>
+          <div>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', margin: '0 0 6px' }}>
+              <a href="/about" style={{ fontSize: '12px', color: C.ctaSub, textDecoration: 'underline' }}>About</a>
+              <a href="/contact" style={{ fontSize: '12px', color: C.ctaSub, textDecoration: 'underline' }}>Contact</a>
+              <a href="/privacy" style={{ fontSize: '12px', color: C.ctaSub, textDecoration: 'underline' }}>Privacy</a>
+              <a href="/terms" style={{ fontSize: '12px', color: C.ctaSub, textDecoration: 'underline' }}>Terms</a>
+            </div>
+            <span style={{ fontSize: '11.5px', color: C.ctaSub }}>© 2026 Track-It. Built for students who want to become better programmers.</span>
+          </div>
           <div style={{ display: 'flex', gap: '16px' }}>
             <a href="#" style={{ fontSize: '11.5px', color: C.ctaSub, textDecoration: 'none' }}>GitHub</a>
             <a href="#" style={{ fontSize: '11.5px', color: C.ctaSub, textDecoration: 'none' }}>LinkedIn</a>
