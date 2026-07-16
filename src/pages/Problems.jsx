@@ -29,7 +29,7 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
   const filtered = useMemo(() => {
     return problems.filter(p => {
       const archived = !!p.archived
-      const viewMatch = filterView === 'All' || (filterView === 'Archived' ? archived : !archived)
+      const viewMatch = filterView === 'All' || !archived
       const q = search.toLowerCase()
       const matchSearch = !q || p.title?.toLowerCase().includes(q) ||
         (p.topics || []).some(t => t.toLowerCase().includes(q)) ||
@@ -84,7 +84,7 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
   <div className="filter-group">
     <label className="filter-label">View</label>
     <select value={filterView} onChange={(e) => setFilterView(e.target.value)} className="filter-select">
-      {['Active', 'Archived', 'All'].map((v) => <option key={v}>{v}</option>)}
+      {['Active', 'All'].map((v) => <option key={v}>{v}</option>)}
     </select>
   </div>
 
