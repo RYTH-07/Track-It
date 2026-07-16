@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
+import { Toaster, toast } from 'react-hot-toast'
 
 import { useAuth }        from './hooks/useAuth.js'
 import { useProblems }    from './hooks/useProblems.js'
@@ -15,7 +15,9 @@ import Dashboard     from './pages/Dashboard.jsx'
 import ReviewSession from './pages/ReviewSession.jsx'
 import LogProblem    from './pages/LogProblem.jsx'
 import Problems      from './pages/Problems.jsx'
+import Archive       from './pages/Archive.jsx'
 import Topics        from './pages/Topics.jsx'
+import TopicSession  from './pages/TopicSession.jsx'
 import Stats         from './pages/Stats.jsx'
 import Achievements  from './pages/Achievements.jsx'
 import Leaderboard   from './pages/Leaderboard.jsx'
@@ -54,6 +56,8 @@ function AppInner() {
   const [darkMode, setDarkMode] = useState(true)
   const [logoutModal, setLogoutModal] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [selectedTopics, setSelectedTopics] = useState([])
+  const [topicSessionTopic, setTopicSessionTopic] = useState(null)
 
   // Apply theme on mount + change
   useEffect(() => { applyTheme(darkMode) }, [darkMode])
@@ -73,19 +77,23 @@ function AppInner() {
   // ── Data hooks (only active when logged in) ──
   const {
     problems,
+    allProblems,
+    archivedProblems,
     loading: probLoading,
     dueProblems,
     addProblem,
     reviewProblem,
     updateNotes,
     deleteProblem,
+    archiveProblem,
+    restoreProblem,
     importProblems,
     refetch
   } = useProblems(user?.id)
 
   const { notebooks, upsertNotebook, deleteNotebook, refetch: refetchNotebooks } = useNotebooks(user?.id)
 
-  const { stats, awardXP, updateWeeklyGoal, recheckAchievements } = useStats(user?.id, problems, notebooks)
+  const { stats, awardXP, updateWeeklyGoal, recheckAchievements } = useStats(user?.id, allProblems, notebooks)
 
   const { activityMap, fetchActivity, logReview } = useActivityLog(user?.id)
 
@@ -111,11 +119,22 @@ function AppInner() {
     return { data, error }
   }
 
-  const handleReview = async (problemId, rating) => {
-    const { data, error, xpEarned } = await reviewProblem(problemId, rating)
+  const handleReview = async (problemId, rating, options = {}) => {
+    const { data, error, xpEarned, suggestArchive } = await reviewProblem(problemId, rating, options)
     if (!error) {
       await awardXP(xpEarned)
       await logReview()
+    }
+    if (!error && suggestArchive) {
+      toast.custom((t) => (
+        <div className="rounded-2xl border px-4 py-3 shadow-lg" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+          <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>⭐ You mastered this 3 times. Archive it?</div>
+          <div className="mt-2 flex gap-2">
+            <button className="btn btn-primary btn-sm" onClick={() => { toast.dismiss(t.id); archiveProblem(problemId).then(() => toast.success('Problem archived')) }}>Archive</button>
+            <button className="btn btn-ghost btn-sm" onClick={() => toast.dismiss(t.id)}>Keep reviewing</button>
+          </div>
+        </div>
+      ), { duration: 6000 })
     }
     return { data, error }
   }
@@ -132,6 +151,29 @@ function AppInner() {
   const handleDeleteNotebook = async (id) => {
     await deleteNotebook(id)
   }
+
+  const handleSelectTopic = (topic) => {
+    if (!topic || topic === 'all') {
+      setSelectedTopics([])
+      return
+    }
+    setSelectedTopics(prev => prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic])
+  }
+
+  const handleStartTopicSession = (topicName) => {
+    setTopicSessionTopic(topicName)
+    navigate('/topic-session')
+  }
+
+  const filteredDueProblems = useMemo(() => {
+    if (!selectedTopics.length) return dueProblems
+    return dueProblems.filter(problem => (problem.topics || []).some(topic => selectedTopics.includes(topic)))
+  }, [dueProblems, selectedTopics])
+
+  const topicSessionProblems = useMemo(() => {
+    if (!topicSessionTopic) return []
+    return problems.filter(problem => (problem.topics || []).includes(topicSessionTopic))
+  }, [problems, topicSessionTopic])
 
   // ── Loading state ──
   if (authLoading) {
@@ -196,25 +238,30 @@ function AppInner() {
           <Route path="/dashboard" element={
             <Dashboard
               problems={problems}
-              dueProblems={dueProblems}
+              dueProblems={filteredDueProblems}
               stats={stats}
-              onRate={handleReview}
-              onNotesChange={updateNotes}
               onUpdateGoal={handleUpdateGoal}
+              selectedTopics={selectedTopics}
+              onSelectTopic={handleSelectTopic}
+              onStartTopicSession={handleStartTopicSession}
             />
           } />
           <Route path="/review" element={
             <ReviewSession
-              dueProblems={dueProblems}
+              dueProblems={filteredDueProblems}
               onRate={handleReview}
               onNotesChange={updateNotes}
+              onArchive={archiveProblem}
             />
           } />
           <Route path="/log" element={
             <LogProblem onAdd={handleAddProblem} notebooks={notebooks} />
           } />
           <Route path="/problems" element={
-            <Problems problems={problems} onDelete={deleteProblem} onUpdate={updateNotes} />
+            <Problems problems={allProblems} onDelete={deleteProblem} onUpdate={updateNotes} onArchive={archiveProblem} onUnarchive={restoreProblem} />
+          } />
+          <Route path="/archive" element={
+            <Archive problems={archivedProblems} onRestore={restoreProblem} />
           } />
           <Route path="/topics" element={
             <Topics
@@ -223,6 +270,17 @@ function AppInner() {
               onUpsertNotebook={handleUpsertNotebook}
               onDeleteNotebook={handleDeleteNotebook}
               onAchievementCheck={recheckAchievements}
+              onStartTopicSession={handleStartTopicSession}
+            />
+          } />
+          <Route path="/topic-session" element={
+            <TopicSession
+              problems={topicSessionProblems}
+              topicName={topicSessionTopic || 'Focused review'}
+              onRate={handleReview}
+              onNotesChange={updateNotes}
+              onArchive={archiveProblem}
+              onEarlyReview={(problemId) => handleReview(problemId, 'good', { earlyReview: true })}
             />
           } />
           <Route path="/stats" element={

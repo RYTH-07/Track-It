@@ -1,74 +1,87 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { today, getNextReviewDate, isDue, calculateXP } from '../lib/helpers.js'
 
 export function useProblems(userId) {
-  const [problems, setProblems] = useState([])
+  const [allProblems, setAllProblems] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const fetchProblems = useCallback(async () => {
-    if (!userId) return
+  const fetchProblems = useCallback(async (archived = null) => {
+    if (!userId) return []
     setLoading(true)
-    const { data, error } = await supabase
+    let query = supabase
       .from('problems')
       .select('*')
       .eq('user_id', userId)
       .order('added_at', { ascending: false })
-    if (!error) setProblems(data || [])
+
+    if (archived === true) query = query.eq('archived', true)
+    if (archived === false) query = query.eq('archived', false)
+
+    const { data, error } = await query
+    if (!error) setAllProblems(data || [])
     setLoading(false)
     return data || []
   }, [userId])
 
   useEffect(() => {
-    fetchProblems()
+    fetchProblems(null)
   }, [fetchProblems])
 
-  const addProblem = async ({ title, url, topics, difficulty, notes, code, codeLanguage, initialConfidence }) => {
-  const nextReview = getNextReviewDate(initialConfidence)
-  const xpEarned = calculateXP(initialConfidence, difficulty)
-  const { data, error } = await supabase
-    .from('problems')
-    .insert([{
-      user_id: userId,
-      title: title.trim(),
-      url: url?.trim() || null,
-      topics: topics || [],
-      difficulty: difficulty || 'medium',
-      notes: notes?.trim() || null,
-      code: code?.trim() || null,
-      code_language: codeLanguage || 'plaintext',
-      mastery: initialConfidence,
-      next_review: nextReview,
-      review_count: 0,
-      added_at: new Date().toISOString(),
-    }])
-    .select()
-    .single()
-  if (!error) {
-    setProblems(prev => [data, ...prev])
-  }
-  return { data, error, xpEarned }
-}
+  const problems = useMemo(() => allProblems.filter(p => !p.archived), [allProblems])
+  const archivedProblems = useMemo(() => allProblems.filter(p => p.archived), [allProblems])
 
-  const reviewProblem = async (problemId, rating) => {
-    const problem = problems.find(p => p.id === problemId)
+  const addProblem = async ({ title, url, topics, difficulty, notes, code, codeLanguage, initialConfidence }) => {
+    const nextReview = getNextReviewDate(initialConfidence)
+    const xpEarned = calculateXP(initialConfidence, difficulty)
+    const { data, error } = await supabase
+      .from('problems')
+      .insert([{
+        user_id: userId,
+        title: title.trim(),
+        url: url?.trim() || null,
+        topics: topics || [],
+        difficulty: difficulty || 'medium',
+        notes: notes?.trim() || null,
+        code: code?.trim() || null,
+        code_language: codeLanguage || 'plaintext',
+        mastery: initialConfidence,
+        next_review: nextReview,
+        review_count: 0,
+        archived: false,
+        consecutive_masters: 0,
+        added_at: new Date().toISOString(),
+      }])
+      .select()
+      .single()
+    if (!error) {
+      setAllProblems(prev => [data, ...prev])
+    }
+    return { data, error, xpEarned }
+  }
+
+  const reviewProblem = async (problemId, rating, options = {}) => {
+    const problem = allProblems.find(p => p.id === problemId)
     if (!problem) return { error: { message: 'Problem not found' } }
-    const nextReview = getNextReviewDate(rating)
-    const xpEarned = calculateXP(rating, problem.difficulty)
+    const nextReview = options.earlyReview ? problem.next_review : getNextReviewDate(rating)
+    const xpBase = calculateXP(rating, problem.difficulty)
+    const xpEarned = options.earlyReview ? Math.max(1, Math.floor(xpBase / 2)) : xpBase
+    const consecutiveMasters = rating === 'master' ? (problem.consecutive_masters || 0) + 1 : 0
     const { data, error } = await supabase
       .from('problems')
       .update({
         mastery: rating,
         next_review: nextReview,
         review_count: (problem.review_count || 0) + 1,
+        consecutive_masters: consecutiveMasters,
       })
       .eq('id', problemId)
       .select()
       .single()
     if (!error) {
-      setProblems(prev => prev.map(p => p.id === problemId ? data : p))
+      setAllProblems(prev => prev.map(p => p.id === problemId ? data : p))
     }
-    return { data, error, xpEarned }
+    return { data, error, xpEarned, suggestArchive: consecutiveMasters >= 3 && rating === 'master' }
   }
 
   const updateNotes = async (problemId, updates) => {
@@ -80,7 +93,7 @@ export function useProblems(userId) {
       .select()
       .single()
     if (!error) {
-      setProblems(prev => prev.map(p => p.id === problemId ? data : p))
+      setAllProblems(prev => prev.map(p => p.id === problemId ? data : p))
     }
     return { data, error }
   }
@@ -91,14 +104,40 @@ export function useProblems(userId) {
       .delete()
       .eq('id', problemId)
     if (!error) {
-      setProblems(prev => prev.filter(p => p.id !== problemId))
+      setAllProblems(prev => prev.filter(p => p.id !== problemId))
     }
     return { error }
   }
 
+  const archiveProblem = async (problemId) => {
+    const { data, error } = await supabase
+      .from('problems')
+      .update({ archived: true, next_review: today() })
+      .eq('id', problemId)
+      .select()
+      .single()
+    if (!error) {
+      setAllProblems(prev => prev.map(p => p.id === problemId ? data : p))
+    }
+    return { data, error }
+  }
+
+  const restoreProblem = async (problemId) => {
+    const { data, error } = await supabase
+      .from('problems')
+      .update({ archived: false, next_review: today() })
+      .eq('id', problemId)
+      .select()
+      .single()
+    if (!error) {
+      setAllProblems(prev => prev.map(p => p.id === problemId ? data : p))
+    }
+    return { data, error }
+  }
+
   const importProblems = async (newProblems) => {
     if (!userId || !newProblems?.length) return { imported: 0, skipped: 0 }
-    const existingTitles = new Set(problems.map(p => p.title?.toLowerCase()))
+    const existingTitles = new Set(allProblems.map(p => p.title?.toLowerCase()))
     const toInsert = newProblems.filter(p => !existingTitles.has(p.title?.toLowerCase()))
     const skipped = newProblems.length - toInsert.length
     if (!toInsert.length) return { imported: 0, skipped }
@@ -112,11 +151,13 @@ export function useProblems(userId) {
       mastery: p.mastery || 'good',
       next_review: p.next_review || today(),
       review_count: Number(p.review_count) || 0,
+      archived: false,
+      consecutive_masters: 0,
       added_at: p.added_at || new Date().toISOString(),
     }))
     const { data, error } = await supabase.from('problems').insert(rows).select()
     if (!error) {
-      setProblems(prev => [...(data || []), ...prev])
+      setAllProblems(prev => [...(data || []), ...prev])
     }
     return { imported: data?.length || 0, skipped, error }
   }
@@ -126,6 +167,8 @@ export function useProblems(userId) {
 
   return {
     problems,
+    allProblems,
+    archivedProblems,
     loading,
     dueProblems,
     overdueProblems,
@@ -133,6 +176,8 @@ export function useProblems(userId) {
     reviewProblem,
     updateNotes,
     deleteProblem,
+    archiveProblem,
+    restoreProblem,
     importProblems,
     refetch: fetchProblems,
   }

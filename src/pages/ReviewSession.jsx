@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReviewCard from '../components/ReviewCard.jsx'
 
-export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
+export default function ReviewSession({ dueProblems, onRate, onNotesChange, onArchive }) {
   const navigate = useNavigate()
   const [slideIndex, setSlideIndex] = useState(0)
 
@@ -44,6 +44,7 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange }) {
                 problem={currentProblem}
                 onRate={onRate}
                 onNotesChange={onNotesChange}
+                onArchive={onArchive}
               />
             </div>
             <div className="fixed top-1/2 right-6 -translate-y-1/2 z-50">

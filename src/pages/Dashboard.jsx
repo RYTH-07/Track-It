@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { Settings, CheckCircle2, Target, CircleCheckBig } from 'lucide-react'
 import ProgressBar from '../components/ProgressBar.jsx'
 import Modal from '../components/Modal.jsx'
+import TopicChips from '../components/TopicChips.jsx'
 import { getWeakTopic } from '../lib/helpers.js'
 
-export default function Dashboard({ problems, dueProblems, stats, onRate, onNotesChange, onUpdateGoal }) {
+export default function Dashboard({ problems, dueProblems, stats, onUpdateGoal, selectedTopics = [], onSelectTopic, onStartTopicSession }) {
   const navigate = useNavigate()
   const [goalModal, setGoalModal] = useState(false)
   const [goalInput, setGoalInput] = useState(stats?.weekly_goal || 5)
@@ -15,6 +16,28 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
   const weekCount = stats?.week_count || 0
   const goalPct = Math.min(100, Math.round((weekCount / weeklyGoal) * 100))
   const weakTopic = getWeakTopic(problems)
+  const topicList = useMemo(() => {
+    const map = {}
+    for (const p of problems) {
+      for (const t of (p.topics || [])) {
+        if (!map[t]) map[t] = 0
+        if (p.next_review <= new Date().toISOString().split('T')[0]) map[t] += 1
+      }
+    }
+    return Object.keys(map).sort()
+  }, [problems])
+
+  const dueTopicCounts = useMemo(() => {
+    const map = {}
+    for (const p of problems) {
+      if (p.next_review <= new Date().toISOString().split('T')[0]) {
+        for (const t of (p.topics || [])) {
+          map[t] = (map[t] || 0) + 1
+        }
+      }
+    }
+    return map
+  }, [problems])
 
   const reviewSummary = useMemo(() => {
     const totalDue = dueProblems.length
@@ -73,12 +96,30 @@ export default function Dashboard({ problems, dueProblems, stats, onRate, onNote
 
       {/* Weak topic focus */}
       {weakTopic && (
-        <div className="rounded-lg p-3 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
-          <span className="text-lg">🎯</span>
-          <div>
-            <p className="text-xs font-semibold" style={{ color: '#F87171' }}>Focus Area</p>
-            <p className="text-sm font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>{weakTopic}</p>
+        <div className="rounded-lg p-3 flex items-center justify-between gap-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+          <div className="flex items-center gap-3">
+            <span className="text-lg">🎯</span>
+            <div>
+              <p className="text-xs font-semibold" style={{ color: '#F87171' }}>Focus Area</p>
+              <p className="text-sm font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>{weakTopic}</p>
+            </div>
           </div>
+          <button type="button" onClick={() => onStartTopicSession?.(weakTopic)} className="btn btn-ghost px-3 py-2 text-sm">
+            Start focus session →
+          </button>
+        </div>
+      )}
+
+      {topicList.length > 0 && (
+        <div className="card p-4 space-y-3">
+          <div className="section-header">Topic filter</div>
+          <TopicChips
+            topics={topicList}
+            selectedTopics={selectedTopics}
+            onToggleTopic={(topic) => onSelectTopic?.(topic)}
+            dueCounts={dueTopicCounts}
+            totalDue={dueProblems.length}
+          />
         </div>
       )}
 

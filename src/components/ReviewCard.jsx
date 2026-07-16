@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
-import { ExternalLink, Check, Flame, Star, RotateCcw } from "lucide-react";
+import { ExternalLink, Check, Flame, Star, RotateCcw, Archive } from "lucide-react";
 import { detectLanguage, LANGUAGE_LABELS } from "../lib/detectLanguage.js";
 
 const DIFFICULTY_STYLE = {
@@ -36,13 +36,14 @@ const formatDifficulty = (difficulty) => {
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 };
 
-export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
+export default function ReviewCard({ problem = {}, onRate, onNotesChange, onArchive }) {
   const [revealedNotes, setRevealedNotes] = useState(false);
   const [revealedSyntax, setRevealedSyntax] = useState(false);
   const [editing, setEditing] = useState(false);
   const [notesDraft, setNotesDraft] = useState(problem.notes || "");
   const [codeDraft, setCodeDraft] = useState(problem.code || "");
   const [saving, setSaving] = useState(false);
+  const [archiveConfirm, setArchiveConfirm] = useState(false);
 
   useEffect(() => {
     setNotesDraft(problem.notes || "");
@@ -78,6 +79,17 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
   const handleGrade = (gradeKey) => {
     if (!onRate) return;
     onRate(problem.id, gradeKey);
+  };
+
+  const handleArchive = async () => {
+    if (!onArchive) return;
+    if (!archiveConfirm) {
+      setArchiveConfirm(true)
+      window.setTimeout(() => setArchiveConfirm(false), 1500)
+      return
+    }
+    await onArchive(problem.id)
+    setArchiveConfirm(false)
   };
 
   const renderMarkdown = (text) => {
@@ -299,6 +311,22 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange }) {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        {onArchive && (revealedNotes || revealedSyntax) && (
+          <button
+            type="button"
+            onClick={handleArchive}
+            className="text-xs font-semibold uppercase tracking-[0.18em] transition"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            <span className="inline-flex items-center gap-2">
+              <Archive className="h-4 w-4" />
+              {archiveConfirm ? 'Confirm?' : 'Archive this problem'}
+            </span>
+          </button>
+        )}
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-4">
