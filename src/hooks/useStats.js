@@ -90,8 +90,26 @@ export function useStats(userId, problems, notebooks) {
       })
     }
 
-    setStats(updatedStats)
-    return { data: updatedStats, error: null }
+    const { data, error } = await supabase
+      .from('user_stats')
+      .update({
+        // xp intentionally omitted — SQL trigger award_xp_on_rating owns this field
+        streak: updatedStats.streak,
+        longest_streak: updatedStats.longest_streak,
+        last_review_date: updatedStats.last_review_date,
+        week_count: updatedStats.week_count,
+        total_reviews: updatedStats.total_reviews,
+        unlocked_achievements: updatedStats.unlocked_achievements,
+      })
+      .eq('user_id', userId)
+      .select()
+      .single()
+
+    if (!error) {
+      // Merge DB result (has real trigger-updated xp) with local computed fields
+      setStats({ ...updatedStats, xp: data.xp })
+    }
+    return { data, error }
   }, [userId, stats, problems, notebooks])
 
   const updateWeeklyGoal = useCallback(async (goal) => {
