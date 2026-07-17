@@ -107,7 +107,7 @@ export default function Leaderboard({ currentUserId }) {
                     ⚡ {row.xp || 0} XP
                   </div>
                   <div className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono,monospace' }}>
-                    {row.problems_count || 0} solved
+                    {row.problems_solved || 0} solved
                   </div>
                 </div>
               </div>
