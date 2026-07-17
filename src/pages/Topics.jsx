@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect} from 'react'
-import { Tag, Plus, Trash2, PlayCircle } from 'lucide-react'
+import { Tag, Plus, Trash2 } from 'lucide-react'
 import { isDue } from '../lib/helpers.js'
 import Modal from '../components/Modal.jsx'
 import toast from 'react-hot-toast'
 
-export default function Topics({ problems, notebooks, onUpsertNotebook, onDeleteNotebook, onAchievementCheck, onStartTopicSession }) {
+export default function Topics({ problems, notebooks, onUpsertNotebook, onDeleteNotebook, onAchievementCheck }) {
   const [newTopicModal, setNewTopicModal] = useState(false)
   const [newTopicName, setNewTopicName]   = useState('')
   const [saving, setSaving]              = useState(null) // topic being saved
@@ -124,9 +124,6 @@ const [deleting, setDeleting] = useState(false)
                     📓 {nb.topic_name}
                   </span>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => onStartTopicSession?.(nb.topic_name)} className="btn btn-ghost px-2 py-1 text-xs">
-                      <PlayCircle size={12} /> Study session
-                    </button>
                     {saving === nb.topic_name && (
                       <span className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono,monospace' }}>saving...</span>
                     )}

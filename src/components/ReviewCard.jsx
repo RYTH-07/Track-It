@@ -44,6 +44,7 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange, onArch
   const [codeDraft, setCodeDraft] = useState(problem.code || "");
   const [saving, setSaving] = useState(false);
   const [archiveConfirm, setArchiveConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setNotesDraft(problem.notes || "");
@@ -76,9 +77,14 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange, onArch
     setEditing(false);
   };
 
-  const handleGrade = (gradeKey) => {
-    if (!onRate) return;
-    onRate(problem.id, gradeKey);
+  const handleGrade = async (gradeKey) => {
+    if (!onRate || submitting) return;
+    setSubmitting(true);
+    try {
+      await onRate(problem.id, gradeKey);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleArchive = async () => {
@@ -336,9 +342,10 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange, onArch
             <button
               key={grade.key}
               type="button"
+              disabled={submitting}
               onClick={() => handleGrade(grade.key)}
               className={[
-                "group flex flex-col items-center justify-center gap-2 rounded-3xl border px-4 py-4 text-xs font-semibold uppercase transition",
+                "group flex flex-col items-center justify-center gap-2 rounded-3xl border px-4 py-4 text-xs font-semibold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed",
                 grade.classes,
               ].join(" ")}
             >
