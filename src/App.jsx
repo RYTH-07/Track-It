@@ -175,7 +175,7 @@ function AppInner() {
     return problems.filter(problem => (problem.topics || []).includes(topicSessionTopic))
   }, [problems, topicSessionTopic])
 
-  // ── Loading state ready ──
+  // ── Loading state ready! ──
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
