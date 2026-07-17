@@ -90,23 +90,8 @@ export function useStats(userId, problems, notebooks) {
       })
     }
 
-    const { data, error } = await supabase
-      .from('user_stats')
-      .update({
-        xp: updatedStats.xp,
-        streak: updatedStats.streak,
-        longest_streak: updatedStats.longest_streak,
-        last_review_date: updatedStats.last_review_date,
-        week_count: updatedStats.week_count,
-        total_reviews: updatedStats.total_reviews,
-        unlocked_achievements: updatedStats.unlocked_achievements,
-      })
-      .eq('user_id', userId)
-      .select()
-      .single()
-
-    if (!error) setStats(data)
-    return { data, error }
+    setStats(updatedStats)
+    return { data: updatedStats, error: null }
   }, [userId, stats, problems, notebooks])
 
   const updateWeeklyGoal = useCallback(async (goal) => {

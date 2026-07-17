@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { BookOpen, Search, ExternalLink, Trash2, Pencil, Archive as ArchiveIcon } from 'lucide-react'
+import { BookOpen, Search, ExternalLink, Trash2, Pencil, Archive as ArchiveIcon, RotateCcw } from 'lucide-react'
 import TopicTag from '../components/TopicTag.jsx'
 import TopicInput from '../components/TopicInput.jsx'
 import CodeSnippetInput from '../components/CodeSnippetInput.jsx'
@@ -16,7 +16,6 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
   const [filterTopic, setFTopic]= useState('All')
   const [filterDiff, setFDiff]  = useState('All')
   const [filterStatus, setFStat]= useState('All')
-  const [filterView, setFilterView] = useState('Active')
   const [deleteId, setDeleteId] = useState(null)
   const [editProblem, setEditProblem] = useState(null)
 
@@ -28,8 +27,6 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
 
   const filtered = useMemo(() => {
     return problems.filter(p => {
-      const archived = !!p.archived
-      const viewMatch = filterView === 'All' || !archived
       const q = search.toLowerCase()
       const matchSearch = !q || p.title?.toLowerCase().includes(q) ||
         (p.topics || []).some(t => t.toLowerCase().includes(q)) ||
@@ -40,9 +37,9 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
         (filterStatus === 'Due'      && isDue(p.next_review)) ||
         (filterStatus === 'Overdue'  && isOverdue(p.next_review)) ||
         (filterStatus === 'Mastered' && p.mastery === 'master')
-      return viewMatch && matchSearch && matchTopic && matchDiff && matchStat
+      return matchSearch && matchTopic && matchDiff && matchStat
     })
-  }, [problems, search, filterTopic, filterDiff, filterStatus, filterView])
+  }, [problems, search, filterTopic, filterDiff, filterStatus])
 
   const confirmDelete = async () => {
     if (!deleteId) return
@@ -81,13 +78,6 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
   />
 </div>
        <div className="filters-row">
-  <div className="filter-group">
-    <label className="filter-label">View</label>
-    <select value={filterView} onChange={(e) => setFilterView(e.target.value)} className="filter-select">
-      {['Active', 'All'].map((v) => <option key={v}>{v}</option>)}
-    </select>
-  </div>
-
   <div className="filter-group">
     <label className="filter-label">Topic</label>
     <select
