@@ -1,9 +1,9 @@
 import React from 'react'
 import { X } from 'lucide-react'
 
-export default function TopicTag({ label, onRemove }) {
+export default function TopicTag({ label, onRemove, variant = 'topic' }) {
   return (
-    <span className="topic-tag">
+    <span className={variant === 'company' ? 'company-tag' : 'topic-tag'}>
       {label}
       {onRemove && (
         <button

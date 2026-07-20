@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
-import { ALLOWED_DOMAIN, DOMAIN_ERROR } from '../lib/constants.js'
+import { ALLOWED_DOMAIN, DOMAIN_ERROR, PROFESSOR_EMAIL } from '../lib/constants.js'
 
 export function useAuth() {
   const [user, setUser] = useState(null)
@@ -47,7 +47,8 @@ export function useAuth() {
 
   const signUp = async (email, password) => {
     const domain = email.split('@')[1]
-    if (domain !== ALLOWED_DOMAIN) {
+    const isProfessorEmail = email.trim().toLowerCase() === PROFESSOR_EMAIL.trim().toLowerCase()
+    if (domain !== ALLOWED_DOMAIN && !isProfessorEmail) {
       return { error: { message: DOMAIN_ERROR } }
     }
     const { data, error } = await supabase.auth.signUp({ email, password })
@@ -92,4 +93,6 @@ export function useAuth() {
     if (user) await fetchProfile(user.id)
   }, [user, fetchProfile])
 
-return { user, profile, loading, needsOnboarding, signUp, signIn, signOut, updateDisplayName, refreshProfile, resetPassword }}
+  const isProfessor = !!user?.email && user.email.trim().toLowerCase() === PROFESSOR_EMAIL.trim().toLowerCase()
+
+return { user, profile, loading, needsOnboarding, isProfessor, signUp, signIn, signOut, updateDisplayName, refreshProfile, resetPassword }}

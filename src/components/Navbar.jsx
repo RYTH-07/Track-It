@@ -21,6 +21,8 @@ import {
   LogOut,
   Users,
   Mail,
+  ClipboardList,
+  GraduationCap,
 } from "lucide-react";
 import "./Navbar.css";
 
@@ -28,6 +30,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Review Queue", icon: LayoutGrid },
   { to: "/log", label: "Log Problem", icon: Plus },
   { to: "/problems", label: "All Problems", icon: MessageSquare },
+  { to: "/assignments", label: "Assignments", icon: ClipboardList },
   { to: "/archive", label: "Archive", icon: Archive },
   { to: "/topics", label: "Topics", icon: Compass },
   { to: "/stats", label: "Stats", icon: BarChart3 },
@@ -45,8 +48,12 @@ export default function Navbar({
   darkMode = true,
   toggleDark = () => {},
   onSignOut = () => {},
+  isProfessor = false,
 }) {
   const navigate = useNavigate();
+  const navItems = isProfessor
+    ? [...NAV_ITEMS, { to: "/teacher", label: "Teacher", icon: GraduationCap }]
+    : NAV_ITEMS;
 
   // NOTE: confirm these three field names against useStats.js — I don't have
   // that file, so this is a best guess at how streak/rank/xp are named on
@@ -130,7 +137,7 @@ export default function Navbar({
 
       {/* single nav row, no duplicates */}
       <nav className="tk-nav">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

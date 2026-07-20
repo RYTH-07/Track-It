@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { Plus, Link, ChevronRight } from 'lucide-react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
+import { Plus, Link, ChevronRight, ClipboardCheck } from 'lucide-react'
 import TopicInput from '../components/TopicInput.jsx'
 import CodeSnippetInput from '../components/CodeSnippetInput.jsx'
 import MarkdownEditor from '../components/MarkdownEditor.jsx'
 import { detectLanguage } from '../lib/detectLanguage.js'
+import { SUGGESTED_COMPANIES } from '../lib/constants.js'
 import toast from 'react-hot-toast'
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
@@ -14,11 +16,23 @@ const CONFIDENCE_OPTIONS = [
   { value: 'master',label: 'Solved perfectly (Master)' },
 ]
 
-export default function LogProblem({ onAdd, notebooks = [] }) {
-  const [title, setTitle]       = useState('')
-  const [url, setUrl]           = useState('')
-  const [topics, setTopics]     = useState([])
-  const [difficulty, setDiff]   = useState('Medium')
+export default function LogProblem({ onAdd, notebooks = [], onCompleteAssignment }) {
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const assignmentId = searchParams.get('assignment')
+
+  const [title, setTitle]       = useState(searchParams.get('title') || '')
+  const [url, setUrl]           = useState(searchParams.get('url') || '')
+  const [topics, setTopics]     = useState(
+    searchParams.get('topics') ? searchParams.get('topics').split(',').filter(Boolean) : []
+  )
+  const [companies, setCompanies] = useState([])
+  const [difficulty, setDiff]   = useState(
+    (() => {
+      const d = searchParams.get('difficulty')
+      return d ? d[0].toUpperCase() + d.slice(1) : 'Medium'
+    })()
+  )
   const [notes, setNotes]       = useState('')
   const [code, setCode]         = useState('')
   const [confidence, setConf]   = useState('good')
@@ -28,8 +42,8 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
     e.preventDefault()
     if (!title.trim()) { toast.error('Problem title is required'); return }
     setLoading(true)
-    const { error } = await onAdd({
-      title, url, topics,
+    const { data, error } = await onAdd({
+      title, url, topics, companies,
       difficulty: difficulty.toLowerCase(),
       notes,
       code,
@@ -38,10 +52,18 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
     })
     if (error) {
       toast.error(error.message)
-    } else {
-      toast.success('Problem logged! 🎯')
-      setTitle(''); setUrl(''); setTopics([]); setNotes(''); setCode(''); setDiff('Medium'); setConf('good')
+      setLoading(false)
+      return
     }
+    if (assignmentId && onCompleteAssignment) {
+      await onCompleteAssignment(assignmentId, data?.id)
+      toast.success('Problem logged & assignment marked complete! 🎯')
+      setLoading(false)
+      navigate('/assignments')
+      return
+    }
+    toast.success('Problem logged! 🎯')
+    setTitle(''); setUrl(''); setTopics([]); setCompanies([]); setNotes(''); setCode(''); setDiff('Medium'); setConf('good')
     setLoading(false)
   }
 
@@ -55,6 +77,15 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
           Add to your matrix — SR scheduling starts immediately
         </p>
       </div>
+
+      {assignmentId && (
+        <div className="card p-3 mb-4 flex items-center gap-2" style={{ borderColor: 'var(--accent)' }}>
+          <ClipboardCheck size={16} style={{ color: 'var(--accent)' }} />
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+            Solving an assignment from your professor — logging it here will mark it complete.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="card p-6 space-y-5">
         {/* Title */}
@@ -120,6 +151,30 @@ export default function LogProblem({ onAdd, notebooks = [] }) {
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             Select a topic from the dropdown to tag this problem
           </p>
+        </div>
+
+        {/* Companies */}
+        <div>
+          <label className="label">Companies (Optional)</label>
+          <TopicInput
+            topics={companies}
+            onChange={setCompanies}
+            variant="company"
+            placeholder="Type a company, press Enter or comma..."
+          />
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {SUGGESTED_COMPANIES.filter(c => !companies.includes(c)).slice(0, 8).map(c => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setCompanies([...companies, c])}
+                className="company-tag"
+                style={{ cursor: 'pointer' }}
+              >
+                + {c}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Difficulty */}

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import TopicTag from './TopicTag.jsx'
 
-export default function TopicInput({ topics = [], onChange, placeholder = 'Type a topic, press Enter or comma...' }) {
+export default function TopicInput({ topics = [], onChange, placeholder = 'Type a topic, press Enter or comma...', variant = 'topic' }) {
   const [input, setInput] = useState('')
   const inputRef = useRef(null)
 
@@ -39,7 +39,7 @@ export default function TopicInput({ topics = [], onChange, placeholder = 'Type 
       style={{ padding: '6px 10px' }}
       onClick={() => inputRef.current?.focus()}
     >
-      {topics.map(t => <TopicTag key={t} label={t} onRemove={removeTopic} />)}
+      {topics.map(t => <TopicTag key={t} label={t} onRemove={removeTopic} variant={variant} />)}
       <input
         ref={inputRef}
         value={input}

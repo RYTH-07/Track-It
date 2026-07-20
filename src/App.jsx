@@ -7,6 +7,7 @@ import { useProblems }    from './hooks/useProblems.js'
 import { useStats }       from './hooks/useStats.js'
 import { useNotebooks }   from './hooks/useNotebooks.js'
 import { useActivityLog } from './hooks/useActivityLog.js'
+import { useAssignments } from './hooks/useAssignments.js'
 
 import Navbar        from './components/Navbar.jsx'
 import Landing       from './pages/Landing.jsx'
@@ -24,6 +25,8 @@ import ImportExport  from './pages/ImportExport.jsx'
 import Profile       from './pages/Profile.jsx'
 import About         from './pages/About.jsx'
 import Contact       from './pages/Contact.jsx'
+import Assignments   from './pages/Assignments.jsx'
+import TeacherAssign from './pages/TeacherAssign.jsx'
 import Modal         from './components/Modal.jsx'
 import AppFooter      from './components/AppFooter.jsx'
 import ResetPassword from './pages/ResetPassword'
@@ -69,7 +72,7 @@ function AppInner() {
   }
 
   // ── Auth ──
-  const { user, profile, loading: authLoading, needsOnboarding,
+  const { user, profile, loading: authLoading, needsOnboarding, isProfessor,
     signIn, signUp, signOut, updateDisplayName, resetPassword } = useAuth()
 
   // ── Data hooks (only active when logged in) ──
@@ -94,6 +97,14 @@ function AppInner() {
   const { stats, awardXP, updateWeeklyGoal, recheckAchievements } = useStats(user?.id, allProblems, notebooks)
 
   const { activityMap, fetchActivity, logReview } = useActivityLog(user?.id)
+
+  const {
+    myAssignments,
+    allAssignments,
+    loading: assignmentsLoading,
+    createAssignment,
+    completeAssignment,
+  } = useAssignments(user?.id, isProfessor)
 
   // ── Handlers ──
   const handleSignOut = () => {
@@ -139,6 +150,14 @@ function AppInner() {
 
   const handleUpdateGoal = async (goal) => {
     await updateWeeklyGoal(goal)
+  }
+
+  const handleCreateAssignment = async (fields) => {
+    return await createAssignment(fields)
+  }
+
+  const handleCompleteAssignment = async (assignmentProgressId, problemId) => {
+    return await completeAssignment(assignmentProgressId, problemId)
   }
 
   const handleUpsertNotebook = async (topicName, theory) => {
@@ -222,6 +241,7 @@ function AppInner() {
           darkMode={darkMode}
           toggleDark={toggleDark}
           onSignOut={handleSignOut}
+          isProfessor={isProfessor}
         />
       )}
 
@@ -247,7 +267,7 @@ function AppInner() {
             />
           } />
           <Route path="/log" element={
-            <LogProblem onAdd={handleAddProblem} notebooks={notebooks} />
+            <LogProblem onAdd={handleAddProblem} notebooks={notebooks} onCompleteAssignment={handleCompleteAssignment} />
           } />
           <Route path="/problems" element={
             <Problems problems={allProblems} onDelete={deleteProblem} onUpdate={updateNotes} onArchive={archiveProblem} onUnarchive={restoreProblem} />
@@ -283,6 +303,19 @@ function AppInner() {
           <Route path="/import-export" element={
             <ImportExport problems={problems} onImport={importProblems} />
           } />
+          <Route path="/assignments" element={
+            <Assignments myAssignments={myAssignments} loading={assignmentsLoading} />
+          } />
+          {isProfessor && (
+            <Route path="/teacher" element={
+              <TeacherAssign
+                allAssignments={allAssignments}
+                loading={assignmentsLoading}
+                onCreate={handleCreateAssignment}
+                professorEmail={user?.email}
+              />
+            } />
+          )}
           <Route path="/profile" element={
             <Profile
               user={user}

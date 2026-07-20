@@ -6,7 +6,7 @@ import Modal from '../components/Modal.jsx'
 import TopicChips from '../components/TopicChips.jsx'
 import { getWeakTopic } from '../lib/helpers.js'
 
-export default function Dashboard({ problems, dueProblems, stats, onUpdateGoal, selectedTopics = [], onSelectTopic, onStartTopicSession }) {
+export default function Dashboard({ problems, dueProblems, stats, onUpdateGoal, selectedTopics = [], onSelectTopic }) {
   const navigate = useNavigate()
   const [goalModal, setGoalModal] = useState(false)
   const [goalInput, setGoalInput] = useState(stats?.weekly_goal || 5)
@@ -96,17 +96,12 @@ export default function Dashboard({ problems, dueProblems, stats, onUpdateGoal, 
 
       {/* Weak topic focus */}
       {weakTopic && (
-        <div className="rounded-lg p-3 flex items-center justify-between gap-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
-          <div className="flex items-center gap-3">
-            <span className="text-lg">🎯</span>
-            <div>
-              <p className="text-xs font-semibold" style={{ color: '#F87171' }}>Focus Area</p>
-              <p className="text-sm font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>{weakTopic}</p>
-            </div>
+        <div className="rounded-lg p-3 flex items-center gap-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+          <span className="text-lg">🎯</span>
+          <div>
+            <p className="text-xs font-semibold" style={{ color: '#F87171' }}>Focus Area</p>
+            <p className="text-sm font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>{weakTopic}</p>
           </div>
-          <button type="button" onClick={() => onStartTopicSession?.(weakTopic)} className="btn btn-ghost px-3 py-2 text-sm">
-            Start focus session →
-          </button>
         </div>
       )}
 

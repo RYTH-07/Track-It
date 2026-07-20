@@ -41,6 +41,11 @@ export default function Archive({ problems, onRestore }) {
                     {p.topics.map(t => <TopicTag key={t} label={t} />)}
                   </div>
                 )}
+                {(p.companies || []).length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {p.companies.map(c => <TopicTag key={c} label={c} variant="company" />)}
+                  </div>
+                )}
               </div>
 
               <button

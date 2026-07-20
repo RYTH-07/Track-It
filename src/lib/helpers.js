@@ -180,10 +180,10 @@ export function checkNewAchievements({ unlockedIds = [], stats = {}, problems = 
 
 // ─── Export helpers ───────────────────────────────────────────────────────────
 export function problemsToCSV(problems) {
-  const headers = ['title', 'url', 'topics', 'difficulty', 'notes', 'mastery', 'next_review', 'review_count', 'added_at']
+  const headers = ['title', 'url', 'topics', 'companies', 'difficulty', 'notes', 'mastery', 'next_review', 'review_count', 'added_at']
   const rows = problems.map(p =>
     headers.map(h => {
-      const val = h === 'topics' ? (p.topics || []).join(';') : (p[h] ?? '')
+      const val = (h === 'topics' || h === 'companies') ? (p[h] || []).join(';') : (p[h] ?? '')
       return `"${String(val).replace(/"/g, '""')}"`
     }).join(',')
   )

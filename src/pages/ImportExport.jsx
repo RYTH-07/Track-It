@@ -130,6 +130,7 @@ export default function ImportExport({ problems, onImport }) {
     "title": "Two Sum",
     "url": "https://leetcode.com/problems/two-sum/",
     "topics": ["arrays", "hash map"],
+    "companies": ["Google", "Amazon"],
     "difficulty": "easy",
     "notes": "Use a hash map for O(n)",
     "mastery": "good",

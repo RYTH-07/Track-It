@@ -371,6 +371,20 @@ html.light .label{
     font-family: 'JetBrains Mono', monospace;
   }
 
+  /* Company tag */
+  .company-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(56,189,248,0.15);
+    border: 1px solid rgba(56,189,248,0.3);
+    color: #7DD3FC;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
   /* Gradient text */
   .gradient-text {
     background: linear-gradient(135deg, #7C3AED, #A78BFA, #C4B5FD);
@@ -671,6 +685,14 @@ html.light .topic-tag{
     border:1px solid rgba(147,51,234,.25);
 
     color:#7C3AED;
+}
+html.light .company-tag{
+
+    background:rgba(2,132,199,.10);
+
+    border:1px solid rgba(2,132,199,.25);
+
+    color:#0284C7;
 }
 html.light .section-header{
 

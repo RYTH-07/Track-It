@@ -31,7 +31,7 @@ export function useProblems(userId) {
   const problems = useMemo(() => allProblems.filter(p => !p.archived), [allProblems])
   const archivedProblems = useMemo(() => allProblems.filter(p => p.archived), [allProblems])
 
-  const addProblem = async ({ title, url, topics, difficulty, notes, code, codeLanguage, initialConfidence }) => {
+  const addProblem = async ({ title, url, topics, companies, difficulty, notes, code, codeLanguage, initialConfidence }) => {
     const nextReview = getNextReviewDate(initialConfidence)
     const xpEarned = calculateXP(initialConfidence, difficulty)
     const { data, error } = await supabase
@@ -41,6 +41,7 @@ export function useProblems(userId) {
         title: title.trim(),
         url: url?.trim() || null,
         topics: topics || [],
+        companies: companies || [],
         difficulty: difficulty || 'medium',
         notes: notes?.trim() || null,
         code: code?.trim() || null,
@@ -146,6 +147,7 @@ export function useProblems(userId) {
       title: p.title,
       url: p.url || null,
       topics: Array.isArray(p.topics) ? p.topics : (p.topics ? p.topics.split(';') : []),
+      companies: Array.isArray(p.companies) ? p.companies : (p.companies ? p.companies.split(';') : []),
       difficulty: p.difficulty || 'medium',
       notes: p.notes || null,
       mastery: p.mastery || 'good',

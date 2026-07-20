@@ -6,6 +6,7 @@ import CodeSnippetInput from '../components/CodeSnippetInput.jsx'
 import MarkdownEditor from '../components/MarkdownEditor.jsx'
 import { detectLanguage } from '../lib/detectLanguage.js'
 import { masteryColor, masteryLabel, isOverdue, isDue, today } from '../lib/helpers.js'
+import { SUGGESTED_COMPANIES } from '../lib/constants.js'
 import Modal from '../components/Modal.jsx'
 import toast from 'react-hot-toast'
 
@@ -14,6 +15,7 @@ const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
 export default function Problems({ problems, onDelete, onUpdate, onArchive, onUnarchive }) {
   const [search, setSearch]     = useState('')
   const [filterTopic, setFTopic]= useState('All')
+  const [filterCompany, setFCompany] = useState('All')
   const [filterDiff, setFDiff]  = useState('All')
   const [filterStatus, setFStat]= useState('All')
   const [deleteId, setDeleteId] = useState(null)
@@ -25,21 +27,29 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
     return ['All', ...Array.from(s).sort()]
   }, [problems])
 
+  const allCompanies = useMemo(() => {
+    const s = new Set()
+    problems.forEach(p => (p.companies || []).forEach(c => s.add(c)))
+    return ['All', ...Array.from(s).sort()]
+  }, [problems])
+
   const filtered = useMemo(() => {
     return problems.filter(p => {
       const q = search.toLowerCase()
       const matchSearch = !q || p.title?.toLowerCase().includes(q) ||
         (p.topics || []).some(t => t.toLowerCase().includes(q)) ||
+        (p.companies || []).some(c => c.toLowerCase().includes(q)) ||
         p.notes?.toLowerCase().includes(q)
       const matchTopic = filterTopic === 'All' || (p.topics || []).includes(filterTopic)
+      const matchCompany = filterCompany === 'All' || (p.companies || []).includes(filterCompany)
       const matchDiff  = filterDiff  === 'All' || p.difficulty?.toLowerCase() === filterDiff.toLowerCase()
       const matchStat  = filterStatus === 'All' ||
         (filterStatus === 'Due'      && isDue(p.next_review)) ||
         (filterStatus === 'Overdue'  && isOverdue(p.next_review)) ||
         (filterStatus === 'Mastered' && p.mastery === 'master')
-      return matchSearch && matchTopic && matchDiff && matchStat
+      return matchSearch && matchTopic && matchCompany && matchDiff && matchStat
     })
-  }, [problems, search, filterTopic, filterDiff, filterStatus])
+  }, [problems, search, filterTopic, filterCompany, filterDiff, filterStatus])
 
   const confirmDelete = async () => {
     if (!deleteId) return
@@ -87,6 +97,19 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
     >
       {allTopics.map((t) => (
         <option key={t}>{t}</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="filter-group">
+    <label className="filter-label">Company</label>
+    <select
+      value={filterCompany}
+      onChange={(e) => setFCompany(e.target.value)}
+      className="filter-select"
+    >
+      {allCompanies.map((c) => (
+        <option key={c}>{c}</option>
       ))}
     </select>
   </div>
@@ -161,6 +184,11 @@ export default function Problems({ problems, onDelete, onUpdate, onArchive, onUn
                       {p.topics.map(t => <TopicTag key={t} label={t} />)}
                     </div>
                   )}
+                  {(p.companies || []).length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {p.companies.map(c => <TopicTag key={c} label={c} variant="company" />)}
+                    </div>
+                  )}
                   {p.notes && (
                     <p className="text-xs mt-1.5 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{p.notes}</p>
                   )}
@@ -229,6 +257,7 @@ function EditProblemModal({ problem, onClose, onSave }) {
   const [title, setTitle]     = useState('')
   const [url, setUrl]         = useState('')
   const [topics, setTopics]   = useState([])
+  const [companies, setCompanies] = useState([])
   const [difficulty, setDiff] = useState('Medium')
   const [notes, setNotes]     = useState('')
   const [code, setCode]       = useState('')
@@ -239,6 +268,7 @@ function EditProblemModal({ problem, onClose, onSave }) {
       setTitle(problem.title || '')
       setUrl(problem.url || '')
       setTopics(problem.topics || [])
+      setCompanies(problem.companies || [])
       setDiff(problem.difficulty ? problem.difficulty[0].toUpperCase() + problem.difficulty.slice(1) : 'Medium')
       setNotes(problem.notes || '')
       setCode(problem.code || '')
@@ -254,6 +284,7 @@ function EditProblemModal({ problem, onClose, onSave }) {
       title,
       url: url?.trim() || null,
       topics,
+      companies,
       difficulty: difficulty.toLowerCase(),
       notes,
       code,
@@ -296,6 +327,29 @@ function EditProblemModal({ problem, onClose, onSave }) {
         <div>
           <label className="label">Topics</label>
           <TopicInput topics={topics} onChange={setTopics} placeholder="Type a topic, press Enter or comma..." />
+        </div>
+
+        <div>
+          <label className="label">Companies</label>
+          <TopicInput
+            topics={companies}
+            onChange={setCompanies}
+            variant="company"
+            placeholder="Type a company, press Enter or comma..."
+          />
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {SUGGESTED_COMPANIES.filter(c => !companies.includes(c)).slice(0, 6).map(c => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setCompanies([...companies, c])}
+                className="company-tag"
+                style={{ cursor: 'pointer' }}
+              >
+                + {c}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div>

@@ -2,6 +2,12 @@
 export const ALLOWED_DOMAIN = 'ch.students.amrita.edu'
 export const DOMAIN_ERROR = 'Track-It is exclusive to Amrita Chennai students. Please use your @ch.students.amrita.edu email.'
 
+// The professor's login email — bypasses the student domain check on signup
+// and is granted assignment-management access. Fill this in once you know it,
+// and keep it in sync (case-insensitive) with the four PROFESSOR_EMAIL_HERE
+// placeholders in supabase_migration_teacher_assignments.sql.
+export const PROFESSOR_EMAIL = 'CHANGE_ME@example.com'
+
 // ─── Spaced Repetition Intervals (days) ──────────────────────────────────────
 export const SR_INTERVALS = {
   again: 1,
@@ -73,3 +79,11 @@ export const ACHIEVEMENTS = [
 
 // ─── Default weekly goal ─────────────────────────────────────────────────────
 export const DEFAULT_WEEKLY_GOAL = 5
+
+// ─── Suggested company tags ──────────────────────────────────────────────────
+export const SUGGESTED_COMPANIES = [
+  'Google', 'Amazon', 'Microsoft', 'Meta', 'Apple', 'Netflix',
+  'Uber', 'Adobe', 'Bloomberg', 'Goldman Sachs', 'Flipkart',
+  'Atlassian', 'Oracle', 'Salesforce', 'LinkedIn', 'TCS',
+  'Infosys', 'Zoho', 'Swiggy', 'Zomato',
+]
