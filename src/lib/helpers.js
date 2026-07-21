@@ -162,7 +162,7 @@ export function checkNewAchievements({ unlockedIds = [], stats = {}, problems = 
   if (topicCount >= 10) unlock('polymath')
 
   // Reviews
-  const totalReviews = stats.total_reviews || 0
+  const totalReviews = problems.reduce((sum, p) => sum + (Number(p.review_count) || 0), 0)
   if (totalReviews >= 50)  unlock('reviewer')
   if (totalReviews >= 200) unlock('drill_sergeant')
 

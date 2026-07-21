@@ -24,7 +24,7 @@ export default function Stats({ problems, stats, activityMap, onFetchActivity })
   const totalSolved   = problems.length
   const dueCount      = problems.filter(p => isDue(p.next_review)).length
   const masteredCount = problems.filter(p => p.mastery === 'master').length
-  const totalReviews  = stats?.total_reviews || 0
+  const totalReviews  = problems.reduce((sum, p) => sum + (Number(p.review_count) || 0), 0)
   const weeklyGoal = stats?.weekly_goal || 5
 const weekCount = stats?.week_count || 0
 const weeklyPct = Math.min(

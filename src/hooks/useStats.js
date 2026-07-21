@@ -72,7 +72,6 @@ export function useStats(userId, problems, notebooks) {
     const newXP = (stats.xp || 0) + xpAmount
     const newWeekCount = (stats.week_count || 0) + 1
     const newLongest = Math.max(stats.longest_streak || 0, newStreak)
-    const totalReviews = (stats.total_reviews || 0) + 1
 
     const prevRank = getRankFromXP(stats.xp || 0)
     const newRank = getRankFromXP(newXP)
@@ -87,7 +86,6 @@ export function useStats(userId, problems, notebooks) {
       longest_streak: newLongest,
       last_review_date: t,
       week_count: newWeekCount,
-      total_reviews: totalReviews,
     }
 
     const newlyUnlocked = checkNewAchievements({
@@ -114,7 +112,6 @@ export function useStats(userId, problems, notebooks) {
         longest_streak: updatedStats.longest_streak,
         last_review_date: updatedStats.last_review_date,
         week_count: updatedStats.week_count,
-        total_reviews: updatedStats.total_reviews,
         unlocked_achievements: updatedStats.unlocked_achievements,
       })
       .eq('user_id', userId)
