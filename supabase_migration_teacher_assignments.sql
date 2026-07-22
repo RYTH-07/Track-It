@@ -72,18 +72,18 @@ create policy "assignments readable by all students"
 drop policy if exists "only professor creates assignments" on assignments;
 create policy "only professor creates assignments"
   on assignments for insert
-  with check (lower(auth.jwt() ->> 'email') = lower('PROFESSOR_EMAIL_HERE'));
+  with check (lower(auth.jwt() ->> 'email') = lower('r_annamalai@ch.amrita.edu'));
 
 -- Only the professor can delete/edit assignments
 drop policy if exists "only professor manages assignments" on assignments;
 create policy "only professor manages assignments"
   on assignments for update
-  using (lower(auth.jwt() ->> 'email') = lower('PROFESSOR_EMAIL_HERE'));
+  using (lower(auth.jwt() ->> 'email') = lower('r_annamalai@ch.amrita.edu'));
 
 drop policy if exists "only professor deletes assignments" on assignments;
 create policy "only professor deletes assignments"
   on assignments for delete
-  using (lower(auth.jwt() ->> 'email') = lower('PROFESSOR_EMAIL_HERE'));
+  using (lower(auth.jwt() ->> 'email') = lower('r_annamalai@ch.amrita.edu'));
 
 -- Students see their own progress row; professor sees all
 drop policy if exists "students see own progress or professor sees all" on assignment_progress;
@@ -91,7 +91,7 @@ create policy "students see own progress or professor sees all"
   on assignment_progress for select
   using (
     student_id = auth.uid()
-    or lower(auth.jwt() ->> 'email') = lower('PROFESSOR_EMAIL_HERE')
+    or lower(auth.jwt() ->> 'email') = lower('r_annamalai@ch.amrita.edu')
   );
 
 -- Students can only update their own progress row (marking complete)

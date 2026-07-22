@@ -6,7 +6,7 @@ export const DOMAIN_ERROR = 'Track-It is exclusive to Amrita Chennai students. P
 // and is granted assignment-management access. Fill this in once you know it,
 // and keep it in sync (case-insensitive) with the four PROFESSOR_EMAIL_HERE
 // placeholders in supabase_migration_teacher_assignments.sql.
-export const PROFESSOR_EMAIL = 'CHANGE_ME@example.com'
+export const PROFESSOR_EMAIL = 'r_annamalai@ch.amrita.edu'
 
 // ─── Spaced Repetition Intervals (days) ──────────────────────────────────────
 export const SR_INTERVALS = {
