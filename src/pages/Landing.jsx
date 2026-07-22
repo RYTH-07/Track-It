@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { PROFESSOR_EMAIL } from '../lib/constants.js'
 
 const DOMAIN = '@ch.students.amrita.edu'
-function isAmritaEmail(e) { return e.toLowerCase().endsWith(DOMAIN) }
+function isAmritaEmail(e) {
+  return e.toLowerCase().endsWith(DOMAIN) || e.trim().toLowerCase() === PROFESSOR_EMAIL.trim().toLowerCase()
+}
 
 const DEMO_PROBLEMS = [
   { title: 'Two Sum', difficulty: 'Easy', topics: ['Arrays', 'HashMap'], notes: 'Store complement in hashmap. Single pass O(n).\nKey: target − current = complement.' },
