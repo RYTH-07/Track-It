@@ -1557,7 +1557,7 @@ export default function Landing({
         </div>
 
         <div style={{ borderTop: `1px solid ${C.ctaBorder}`, maxWidth: '1140px', margin: '0 auto', padding: '1.25rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <span style={{ fontSize: '12px', color: C.ctaSub, fontFamily: 'JetBrains Mono, monospace' }}>📧 example@ch.students.amrita.edu</span>
+          <span style={{ fontSize: '12px', color: C.ctaSub, fontFamily: 'JetBrains Mono, monospace' }}>📧 ch.sc.u4cse25108@ch.students.amrita.edu</span>
           <span style={{ fontSize: '12px', color: C.ctaSub, fontFamily: 'JetBrains Mono, monospace' }}>🌍 Amrita Vishwa Vidyapeetham · Chennai Campus</span>
         </div>
 
@@ -1572,8 +1572,8 @@ export default function Landing({
             <span style={{ fontSize: '11.5px', color: C.ctaSub }}>© 2026 Track-It. Built for students who want to become better programmers.</span>
           </div>
           <div style={{ display: 'flex', gap: '16px' }}>
-            <a href="#" style={{ fontSize: '11.5px', color: C.ctaSub, textDecoration: 'none' }}>GitHub</a>
-            <a href="#" style={{ fontSize: '11.5px', color: C.ctaSub, textDecoration: 'none' }}>LinkedIn</a>
+            <a href="https://github.com/RYTH-07/Track-It" target="_blank" rel="noopener noreferrer" style={{ fontSize: '11.5px', color: C.ctaSub, textDecoration: 'none' }}>GitHub</a>
+            <a href="https://www.linkedin.com/in/ryth07/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '11.5px', color: C.ctaSub, textDecoration: 'none' }}>LinkedIn</a>
           </div>
         </div>
       </footer>

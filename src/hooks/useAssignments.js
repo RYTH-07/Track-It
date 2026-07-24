@@ -62,8 +62,8 @@ export function useAssignments(userId, isProfessor) {
     else fetchMyAssignments()
   }, [isProfessor, fetchMyAssignments, fetchAllAssignments])
 
-  // ── Professor: create a new assignment (fans out to every student via DB trigger) ──
-  const createAssignment = async ({ title, url, topics, difficulty, notes, createdByEmail }) => {
+  // ── Professor: create a new assignment (fans out to matching students via DB trigger) ──
+  const createAssignment = async ({ title, url, topics, difficulty, notes, targetEmails, createdByEmail }) => {
     const { data, error } = await supabase
       .from('assignments')
       .insert([{
@@ -72,6 +72,7 @@ export function useAssignments(userId, isProfessor) {
         topics: topics || [],
         difficulty: difficulty || 'medium',
         notes: notes?.trim() || null,
+        target_emails: targetEmails || null,
         created_by: createdByEmail,
       }])
       .select()

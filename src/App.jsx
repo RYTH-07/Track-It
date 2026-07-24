@@ -200,6 +200,13 @@ function AppInner() {
     )
   }
 
+  // ── Password reset — must render regardless of auth state. Supabase's
+  //    recovery link auto-establishes a session on click, which would
+  //    otherwise make `user` truthy and skip straight into the app below. ──
+  if (window.location.pathname === '/reset-password') {
+    return <ResetPassword />
+  }
+
   // ── Unauthenticated ──
   if (!user) {
     return (
@@ -247,88 +254,106 @@ function AppInner() {
 
       <main className={showNavbar ? 'pb-12' : 'min-h-screen'}>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={
-            <Dashboard
-              problems={problems}
-              dueProblems={filteredDueProblems}
-              stats={stats}
-              onUpdateGoal={handleUpdateGoal}
-              selectedTopics={selectedTopics}
-              onSelectTopic={handleSelectTopic}
-            />
-          } />
-          <Route path="/review" element={
-            <ReviewSession
-              dueProblems={filteredDueProblems}
-              onRate={handleReview}
-              onNotesChange={updateNotes}
-              onArchive={archiveProblem}
-            />
-          } />
-          <Route path="/log" element={
-            <LogProblem onAdd={handleAddProblem} notebooks={notebooks} onCompleteAssignment={handleCompleteAssignment} />
-          } />
-          <Route path="/problems" element={
-            <Problems problems={allProblems} onDelete={deleteProblem} onUpdate={updateNotes} onArchive={archiveProblem} onUnarchive={restoreProblem} />
-          } />
-          <Route path="/archive" element={
-            <Archive problems={archivedProblems} onRestore={restoreProblem} />
-          } />
-          <Route path="/topics" element={
-            <Topics
-              problems={problems}
-              notebooks={notebooks}
-              onUpsertNotebook={handleUpsertNotebook}
-              onDeleteNotebook={handleDeleteNotebook}
-              onAchievementCheck={recheckAchievements}
+          {isProfessor ? (
+            <>
+              <Route path="/teacher" element={
+                <TeacherAssign
+                  allAssignments={allAssignments}
+                  loading={assignmentsLoading}
+                  onCreate={handleCreateAssignment}
+                  professorEmail={user?.email}
+                />
+              } />
+              <Route path="/profile" element={
+                <Profile
+                  user={user}
+                  profile={profile}
+                  onUpdateDisplayName={updateDisplayName}
+                  onSignOut={handleSignOut}
+                />
+              } />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="*" element={<Navigate to="/teacher" replace />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={
+                <Dashboard
+                  problems={problems}
+                  dueProblems={filteredDueProblems}
+                  stats={stats}
+                  onUpdateGoal={handleUpdateGoal}
+                  selectedTopics={selectedTopics}
+                  onSelectTopic={handleSelectTopic}
+                />
+              } />
+              <Route path="/review" element={
+                <ReviewSession
+                  dueProblems={filteredDueProblems}
+                  onRate={handleReview}
+                  onNotesChange={updateNotes}
+                  onArchive={archiveProblem}
+                />
+              } />
+              <Route path="/log" element={
+                <LogProblem onAdd={handleAddProblem} notebooks={notebooks} onCompleteAssignment={handleCompleteAssignment} />
+              } />
+              <Route path="/problems" element={
+                <Problems problems={allProblems} onDelete={deleteProblem} onUpdate={updateNotes} onArchive={archiveProblem} onUnarchive={restoreProblem} />
+              } />
+              <Route path="/archive" element={
+                <Archive problems={archivedProblems} onRestore={restoreProblem} />
+              } />
+              <Route path="/topics" element={
+                <Topics
+                  problems={problems}
+                  notebooks={notebooks}
+                  onUpsertNotebook={handleUpsertNotebook}
+                  onDeleteNotebook={handleDeleteNotebook}
+                  onAchievementCheck={recheckAchievements}
 
-            />
-          } />
-          
-          <Route path="/stats" element={
-            <Stats
-              problems={problems}
-              stats={stats}
-              activityMap={activityMap}
-              onFetchActivity={fetchActivity}
-            />
-          } />
-          <Route path="/achievements" element={
-            <Achievements unlockedIds={unlockedIds} />
-          } />
-          <Route path="/leaderboard" element={
-            <Leaderboard currentUserId={user?.id} />
-          } />
-          <Route path="/import-export" element={
-            <ImportExport problems={problems} onImport={importProblems} />
-          } />
-          <Route path="/assignments" element={
-            <Assignments myAssignments={myAssignments} loading={assignmentsLoading} />
-          } />
-          {isProfessor && (
-            <Route path="/teacher" element={
-              <TeacherAssign
-                allAssignments={allAssignments}
-                loading={assignmentsLoading}
-                onCreate={handleCreateAssignment}
-                professorEmail={user?.email}
-              />
-            } />
+                />
+              } />
+              
+              <Route path="/stats" element={
+                <Stats
+                  problems={problems}
+                  stats={stats}
+                  activityMap={activityMap}
+                  onFetchActivity={fetchActivity}
+                />
+              } />
+              <Route path="/achievements" element={
+                <Achievements unlockedIds={unlockedIds} />
+              } />
+              <Route path="/leaderboard" element={
+                <Leaderboard currentUserId={user?.id} />
+              } />
+              <Route path="/import-export" element={
+                <ImportExport problems={problems} onImport={importProblems} />
+              } />
+              <Route path="/assignments" element={
+                <Assignments myAssignments={myAssignments} loading={assignmentsLoading} />
+              } />
+              <Route path="/profile" element={
+                <Profile
+                  user={user}
+                  profile={profile}
+                  onUpdateDisplayName={updateDisplayName}
+                  onSignOut={handleSignOut}
+                />
+              } />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </>
           )}
-          <Route path="/profile" element={
-            <Profile
-              user={user}
-              profile={profile}
-              onUpdateDisplayName={updateDisplayName}
-              onSignOut={handleSignOut}
-            />
-          } />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
       {showNavbar && <AppFooter />}

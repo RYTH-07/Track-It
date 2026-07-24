@@ -4,6 +4,48 @@ import TopicInput from '../components/TopicInput.jsx'
 import toast from 'react-hot-toast'
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
+const MAX_RANGE_SIZE = 500 // safety cap so a typo can't silently generate thousands of entries
+
+// Expands one entry into one or more targeting strings. Supports:
+//   "25108"                    -> ["25108"]
+//   "25101-25120"              -> ["25101", "25102", ..., "25120"]
+//   "u4cse25101-25120"         -> ["u4cse25101", ..., "u4cse25120"] (prefix from the left side reused)
+//   "u4cse25101-u4cse25120"    -> same as above
+//   "someone@ch.students.amrita.edu" -> left untouched (no trailing digits to range against)
+function expandTargetEntry(raw) {
+  const entry = raw.trim()
+  if (!entry.includes('-')) return [entry]
+
+  const [left, right] = entry.split('-').map(s => s.trim())
+  if (!left || !right) return [entry]
+
+  const leftMatch = left.match(/^(.*?)(\d+)$/)
+  const rightMatch = right.match(/^(.*?)(\d+)$/)
+  if (!leftMatch || !rightMatch) return [entry] // not a numeric range, treat literally
+
+  const prefix = leftMatch[1]
+  const startStr = leftMatch[2]
+  const start = parseInt(startStr, 10)
+  const end = parseInt(rightMatch[2], 10)
+  const width = startStr.length
+
+  if (isNaN(start) || isNaN(end) || end < start) return [entry]
+  if (end - start + 1 > MAX_RANGE_SIZE) return [entry] // refuse to silently explode a typo'd range
+
+  const results = []
+  for (let n = start; n <= end; n++) {
+    results.push(prefix + String(n).padStart(width, '0'))
+  }
+  return results
+}
+
+function parseTargetInput(input) {
+  return input
+    .split(/[,\n]/)
+    .map(s => s.trim())
+    .filter(Boolean)
+    .flatMap(expandTargetEntry)
+}
 
 export default function TeacherAssign({ allAssignments = [], loading, onCreate, professorEmail }) {
   const [title, setTitle] = useState('')
@@ -11,6 +53,7 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
   const [topics, setTopics] = useState([])
   const [difficulty, setDiff] = useState('Medium')
   const [notes, setNotes] = useState('')
+  const [targetInput, setTargetInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
 
@@ -18,18 +61,20 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
     e.preventDefault()
     if (!title.trim()) { toast.error('Problem title is required'); return }
     setSubmitting(true)
+    const targetEmails = parseTargetInput(targetInput)
     const { error } = await onCreate({
       title, url, topics,
       difficulty: difficulty.toLowerCase(),
       notes,
+      targetEmails: targetEmails.length ? targetEmails : null,
       createdByEmail: professorEmail,
     })
     setSubmitting(false)
     if (error) {
       toast.error(error.message)
     } else {
-      toast.success('Assigned to the whole class 🎯')
-      setTitle(''); setUrl(''); setTopics([]); setNotes(''); setDiff('Medium')
+      toast.success(targetEmails.length ? `Assigned to ${targetEmails.length} student(s) 🎯` : 'Assigned to the whole class 🎯')
+      setTitle(''); setUrl(''); setTopics([]); setNotes(''); setDiff('Medium'); setTargetInput('')
     }
   }
 
@@ -110,12 +155,27 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
           />
         </div>
 
+        <div>
+          <label className="label" htmlFor="a-targets">Only for these students (Optional)</label>
+          <textarea
+            id="a-targets"
+            value={targetInput}
+            onChange={e => setTargetInput(e.target.value)}
+            className="input"
+            rows={3}
+            placeholder={"Leave blank to assign to the whole class.\nRanges work too, one per line or comma-separated:\n25101-25120\nu4cse25101-25120\nu4cse25201-25230"}
+          />
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+            Matches against each student's email. Accepts a roll number, a full email, or a range like 25101-25120 — mix multiple ranges/emails separated by commas or new lines.
+          </p>
+        </div>
+
         <button
           type="submit"
           disabled={submitting || !title.trim()}
           className="btn btn-primary w-full"
         >
-          {submitting ? 'Assigning...' : '📋 Assign to Class'}
+          {submitting ? 'Assigning...' : '📋 Assign'}
           {!submitting && <ChevronRight size={15} />}
         </button>
       </form>
@@ -143,6 +203,7 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
                       <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{a.title}</span>
                       <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                         {doneCount}/{progress.length} completed · assigned {a.assigned_date}
+                        {a.target_emails?.length ? ` · targeted (${a.target_emails.length})` : ' · whole class'}
                       </p>
                     </div>
                     {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}

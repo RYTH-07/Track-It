@@ -52,7 +52,7 @@ export default function Navbar({
 }) {
   const navigate = useNavigate();
   const navItems = isProfessor
-    ? [...NAV_ITEMS, { to: "/teacher", label: "Teacher", icon: GraduationCap }]
+    ? [{ to: "/teacher", label: "Assign & Progress", icon: GraduationCap }]
     : NAV_ITEMS;
 
   // NOTE: confirm these three field names against useStats.js — I don't have
@@ -73,43 +73,47 @@ export default function Navbar({
         </div>
 
         <div className="tk-stats">
-          <div className="tk-stat-streak-wrap">
-            <span className="tk-ember tk-ember-1" aria-hidden="true" />
-            <span className="tk-ember tk-ember-2" aria-hidden="true" />
-            <span className="tk-ember tk-ember-3" aria-hidden="true" />
-            <span className="tk-ember tk-ember-4" aria-hidden="true" />
-            <span className="tk-ember tk-ember-5" aria-hidden="true" />
-            <span className="tk-ember tk-ember-6" aria-hidden="true" />
-            <div className="tk-stat tk-stat--streak">
-              <Flame size={18} strokeWidth={2.6} className="tk-stat-icon" />
-              <span className="tk-stat-value">{streak}d</span>
-              <span className="tk-stat-label">Streak</span>
-            </div>
-          </div>
+          {!isProfessor && (
+            <>
+              <div className="tk-stat-streak-wrap">
+                <span className="tk-ember tk-ember-1" aria-hidden="true" />
+                <span className="tk-ember tk-ember-2" aria-hidden="true" />
+                <span className="tk-ember tk-ember-3" aria-hidden="true" />
+                <span className="tk-ember tk-ember-4" aria-hidden="true" />
+                <span className="tk-ember tk-ember-5" aria-hidden="true" />
+                <span className="tk-ember tk-ember-6" aria-hidden="true" />
+                <div className="tk-stat tk-stat--streak">
+                  <Flame size={18} strokeWidth={2.6} className="tk-stat-icon" />
+                  <span className="tk-stat-value">{streak}d</span>
+                  <span className="tk-stat-label">Streak</span>
+                </div>
+              </div>
 
-          <div className="tk-stat tk-stat--rank">
-            <Leaf size={15} strokeWidth={2.4} className="tk-stat-icon" />
-            <span className="tk-stat-value">{rank}</span>
-            <span className="tk-stat-label">Rank</span>
-          </div>
+              <div className="tk-stat tk-stat--rank">
+                <Leaf size={15} strokeWidth={2.4} className="tk-stat-icon" />
+                <span className="tk-stat-value">{rank}</span>
+                <span className="tk-stat-label">Rank</span>
+              </div>
 
-          <div className="tk-stat tk-stat--xp">
-            <Zap size={15} strokeWidth={2.4} className="tk-stat-icon" />
-            <span className="tk-stat-value">{xp}</span>
-            <span className="tk-stat-label">Xp</span>
-          </div>
+              <div className="tk-stat tk-stat--xp">
+                <Zap size={15} strokeWidth={2.4} className="tk-stat-icon" />
+                <span className="tk-stat-value">{xp}</span>
+                <span className="tk-stat-label">Xp</span>
+              </div>
 
-          <div className="tk-stat tk-stat--due">
-            <Target size={15} strokeWidth={2.4} className="tk-stat-icon" />
-            <span className="tk-stat-value">{dueCount}</span>
-            <span className="tk-stat-label">Due</span>
-          </div>
+              <div className="tk-stat tk-stat--due">
+                <Target size={15} strokeWidth={2.4} className="tk-stat-icon" />
+                <span className="tk-stat-value">{dueCount}</span>
+                <span className="tk-stat-label">Due</span>
+              </div>
 
-          <div className="tk-stat tk-stat--solved">
-            <CheckCircle2 size={15} strokeWidth={2.4} className="tk-stat-icon" />
-            <span className="tk-stat-value">{solvedCount}</span>
-            <span className="tk-stat-label">Solved</span>
-          </div>
+              <div className="tk-stat tk-stat--solved">
+                <CheckCircle2 size={15} strokeWidth={2.4} className="tk-stat-icon" />
+                <span className="tk-stat-value">{solvedCount}</span>
+                <span className="tk-stat-label">Solved</span>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="tk-actions">
