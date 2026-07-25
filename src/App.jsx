@@ -104,6 +104,7 @@ function AppInner() {
     loading: assignmentsLoading,
     createAssignment,
     completeAssignment,
+    updateDueDate,
   } = useAssignments(user?.id, isProfessor)
 
   // ── Handlers ──
@@ -158,6 +159,10 @@ function AppInner() {
 
   const handleCompleteAssignment = async (assignmentProgressId, problemId) => {
     return await completeAssignment(assignmentProgressId, problemId)
+  }
+
+  const handleUpdateAssignmentDueDate = async (assignmentId, dueDate) => {
+    return await updateDueDate(assignmentId, dueDate)
   }
 
   const handleUpsertNotebook = async (topicName, theory) => {
@@ -261,6 +266,7 @@ function AppInner() {
                   allAssignments={allAssignments}
                   loading={assignmentsLoading}
                   onCreate={handleCreateAssignment}
+                  onUpdateDueDate={handleUpdateAssignmentDueDate}
                   professorEmail={user?.email}
                 />
               } />

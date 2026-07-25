@@ -63,7 +63,7 @@ export function useAssignments(userId, isProfessor) {
   }, [isProfessor, fetchMyAssignments, fetchAllAssignments])
 
   // ── Professor: create a new assignment (fans out to matching students via DB trigger) ──
-  const createAssignment = async ({ title, url, topics, difficulty, notes, targetEmails, createdByEmail }) => {
+  const createAssignment = async ({ title, url, topics, difficulty, notes, targetEmails, dueDate, createdByEmail }) => {
     const { data, error } = await supabase
       .from('assignments')
       .insert([{
@@ -73,8 +73,21 @@ export function useAssignments(userId, isProfessor) {
         difficulty: difficulty || 'medium',
         notes: notes?.trim() || null,
         target_emails: targetEmails || null,
+        due_date: dueDate || null,
         created_by: createdByEmail,
       }])
+      .select()
+      .single()
+    if (!error) await fetchAllAssignments()
+    return { data, error }
+  }
+
+  // ── Professor: set/change the due date on an existing assignment ──
+  const updateDueDate = async (assignmentId, dueDate) => {
+    const { data, error } = await supabase
+      .from('assignments')
+      .update({ due_date: dueDate || null })
+      .eq('id', assignmentId)
       .select()
       .single()
     if (!error) await fetchAllAssignments()
@@ -108,6 +121,7 @@ export function useAssignments(userId, isProfessor) {
     loading,
     createAssignment,
     completeAssignment,
+    updateDueDate,
     refetchMine: fetchMyAssignments,
     refetchAll: fetchAllAssignments,
   }

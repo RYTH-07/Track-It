@@ -70,6 +70,8 @@ function AssignmentCard({ row, onSolve }) {
   const a = row.assignments
   if (!a) return null
   const isDone = row.status === 'completed'
+  const today = new Date().toISOString().split('T')[0]
+  const isOverdue = !isDone && a.due_date && a.due_date < today
 
   return (
     <div className="card p-4 flex items-start gap-3">
@@ -89,6 +91,11 @@ function AssignmentCard({ row, onSolve }) {
               <Clock size={11} className="inline mr-1" />Pending
             </span>
           )}
+          {isOverdue && (
+            <span className="badge" style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.3)' }}>
+              Overdue
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{a.title}</span>
@@ -98,6 +105,11 @@ function AssignmentCard({ row, onSolve }) {
             </a>
           )}
         </div>
+        {a.due_date && (
+          <p className="text-xs mt-0.5" style={{ color: isOverdue ? '#F87171' : 'var(--text-muted)' }}>
+            Due {a.due_date}
+          </p>
+        )}
         {(a.topics || []).length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">
             {a.topics.map(t => <TopicTag key={t} label={t} />)}
@@ -108,10 +120,17 @@ function AssignmentCard({ row, onSolve }) {
         )}
       </div>
       {!isDone && (
-        <button type="button" onClick={onSolve} className="btn btn-primary btn-sm shrink-0">
-          Solve
+        <button
+          type="button"
+          onClick={isOverdue ? undefined : onSolve}
+          disabled={isOverdue}
+          className="btn btn-primary btn-sm shrink-0"
+          style={isOverdue ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+          title={isOverdue ? 'The due date has passed' : undefined}
+        >
+          {isOverdue ? 'Deadline passed' : 'Solve'}
         </button>
       )}
     </div>
   )
-}
+} 

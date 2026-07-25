@@ -47,15 +47,20 @@ function parseTargetInput(input) {
     .flatMap(expandTargetEntry)
 }
 
-export default function TeacherAssign({ allAssignments = [], loading, onCreate, professorEmail }) {
+export default function TeacherAssign({ allAssignments = [], loading, onCreate, onUpdateDueDate, professorEmail }) {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [topics, setTopics] = useState([])
   const [difficulty, setDiff] = useState('Medium')
   const [notes, setNotes] = useState('')
   const [targetInput, setTargetInput] = useState('')
+  const [dueDate, setDueDate] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
+  const [dueDateEdits, setDueDateEdits] = useState({}) // assignmentId -> in-progress edit value
+  const [savingDueDate, setSavingDueDate] = useState(null) // assignmentId currently saving
+
+  const today = new Date().toISOString().split('T')[0]
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -67,6 +72,7 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
       difficulty: difficulty.toLowerCase(),
       notes,
       targetEmails: targetEmails.length ? targetEmails : null,
+      dueDate: dueDate || null,
       createdByEmail: professorEmail,
     })
     setSubmitting(false)
@@ -74,8 +80,17 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
       toast.error(error.message)
     } else {
       toast.success(targetEmails.length ? `Assigned to ${targetEmails.length} student(s) 🎯` : 'Assigned to the whole class 🎯')
-      setTitle(''); setUrl(''); setTopics([]); setNotes(''); setDiff('Medium'); setTargetInput('')
+      setTitle(''); setUrl(''); setTopics([]); setNotes(''); setDiff('Medium'); setTargetInput(''); setDueDate('')
     }
+  }
+
+  const handleSaveDueDate = async (assignmentId) => {
+    setSavingDueDate(assignmentId)
+    const value = dueDateEdits[assignmentId] ?? ''
+    const { error } = await onUpdateDueDate(assignmentId, value || null)
+    setSavingDueDate(null)
+    if (error) toast.error(error.message)
+    else toast.success(value ? 'Due date updated' : 'Due date cleared')
   }
 
   return (
@@ -170,6 +185,18 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
           </p>
         </div>
 
+        <div>
+          <label className="label" htmlFor="a-due">Due Date (Optional)</label>
+          <input
+            id="a-due"
+            type="date"
+            value={dueDate}
+            min={today}
+            onChange={e => setDueDate(e.target.value)}
+            className="input"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={submitting || !title.trim()}
@@ -192,6 +219,7 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
               const progress = a.assignment_progress || []
               const doneCount = progress.filter(p => p.status === 'completed').length
               const expanded = expandedId === a.id
+              const isOverdue = a.due_date && a.due_date < today && doneCount < progress.length
               return (
                 <div key={a.id} className="card p-4">
                   <button
@@ -204,12 +232,35 @@ export default function TeacherAssign({ allAssignments = [], loading, onCreate, 
                       <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                         {doneCount}/{progress.length} completed · assigned {a.assigned_date}
                         {a.target_emails?.length ? ` · targeted (${a.target_emails.length})` : ' · whole class'}
+                        {a.due_date && (
+                          <span style={{ color: isOverdue ? '#F87171' : 'var(--text-muted)' }}>
+                            {' · due '}{a.due_date}{isOverdue ? ' (overdue)' : ''}
+                          </span>
+                        )}
                       </p>
                     </div>
                     {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
                   {expanded && (
-                    <div className="mt-3 pt-3 space-y-1" style={{ borderTop: '1px solid var(--border)' }}>
+                    <div className="mt-3 pt-3 space-y-3" style={{ borderTop: '1px solid var(--border)' }}>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Due date:</label>
+                        <input
+                          type="date"
+                          value={dueDateEdits[a.id] ?? a.due_date ?? ''}
+                          onChange={e => setDueDateEdits(prev => ({ ...prev, [a.id]: e.target.value }))}
+                          className="input py-1 text-xs"
+                          style={{ maxWidth: '160px' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleSaveDueDate(a.id)}
+                          disabled={savingDueDate === a.id}
+                          className="btn btn-ghost px-2 py-1 text-xs shrink-0"
+                        >
+                          {savingDueDate === a.id ? '...' : 'Save'}
+                        </button>
+                      </div>
                       {progress.map(p => (
                         <div key={p.id} className="flex items-center justify-between text-xs">
                           <span style={{ color: 'var(--text-secondary)' }}>{p.student_name}</span>
