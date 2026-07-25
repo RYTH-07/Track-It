@@ -138,4 +138,4 @@ track-it/
 
 ## Status
 
-🚧 **In active development** — not yet live.
+🚧 **In active development** — but ready to use !!
