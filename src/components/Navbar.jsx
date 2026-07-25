@@ -52,7 +52,10 @@ export default function Navbar({
 }) {
   const navigate = useNavigate();
   const navItems = isProfessor
-    ? [{ to: "/teacher", label: "Assign & Progress", icon: GraduationCap }]
+    ? [
+        { to: "/teacher", label: "Assign", icon: GraduationCap },
+        { to: "/teacher/progress", label: "Progress", icon: ClipboardList },
+      ]
     : NAV_ITEMS;
 
   // NOTE: confirm these three field names against useStats.js — I don't have

@@ -133,4 +133,4 @@ function AssignmentCard({ row, onSolve }) {
       )}
     </div>
   )
-} 
+}

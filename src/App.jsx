@@ -27,6 +27,7 @@ import About         from './pages/About.jsx'
 import Contact       from './pages/Contact.jsx'
 import Assignments   from './pages/Assignments.jsx'
 import TeacherAssign from './pages/TeacherAssign.jsx'
+import TeacherProgress from './pages/TeacherProgress.jsx'
 import Modal         from './components/Modal.jsx'
 import AppFooter      from './components/AppFooter.jsx'
 import ResetPassword from './pages/ResetPassword'
@@ -263,11 +264,15 @@ function AppInner() {
             <>
               <Route path="/teacher" element={
                 <TeacherAssign
+                  onCreate={handleCreateAssignment}
+                  professorEmail={user?.email}
+                />
+              } />
+              <Route path="/teacher/progress" element={
+                <TeacherProgress
                   allAssignments={allAssignments}
                   loading={assignmentsLoading}
-                  onCreate={handleCreateAssignment}
                   onUpdateDueDate={handleUpdateAssignmentDueDate}
-                  professorEmail={user?.email}
                 />
               } />
               <Route path="/profile" element={
