@@ -75,7 +75,7 @@ function initials(name) {
 function TeamSlide({ person }) {
   return (
     <div
-      className="card"
+      className="card tk-team-slide"
       style={{
         padding: '2.5rem',
         display: 'grid',
@@ -87,14 +87,18 @@ function TeamSlide({ person }) {
       }}
     >
       {/* Big photo */}
-      <div style={{
-        width: '220px', height: '220px', borderRadius: '24px',
-        background: `${person.color}1a`, border: `2px solid ${person.color}66`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, fontSize: '56px',
-        color: person.color, overflow: 'hidden', flexShrink: 0,
-        boxShadow: `0 0 0 6px ${person.color}14, 0 20px 40px -15px ${person.color}55`,
-      }}>
+      <div
+        className="tk-team-photo"
+        style={{
+          width: '220px', height: '220px', borderRadius: '24px',
+          background: `${person.color}1a`, border: `2px solid ${person.color}66`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, fontSize: '56px',
+          color: person.color, overflow: 'hidden', flexShrink: 0,
+          boxShadow: `0 0 0 6px ${person.color}14, 0 20px 40px -15px ${person.color}55`,
+          margin: '0 auto',
+        }}
+      >
         {person.photo ? (
           <img
             src={person.photo}
@@ -179,11 +183,11 @@ function TeamCarousel() {
   const next = () => setIndex(i => (i + 1) % TEAM.length)
 
   return (
-    <div style={{ position: 'relative', maxWidth: '760px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+    <div className="tk-team-carousel" style={{ position: 'relative', maxWidth: '760px', margin: '0 auto' }}>
+      <div className="tk-team-carousel-row" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button
           onClick={prev}
-          className="btn btn-ghost"
+          className="tk-team-arrow btn btn-ghost"
           style={{ borderRadius: '999px', padding: '10px', flexShrink: 0 }}
           aria-label="Previous"
         >
@@ -196,7 +200,7 @@ function TeamCarousel() {
 
         <button
           onClick={next}
-          className="btn btn-ghost"
+          className="tk-team-arrow btn btn-ghost"
           style={{ borderRadius: '999px', padding: '10px', flexShrink: 0 }}
           aria-label="Next"
         >
@@ -252,10 +256,29 @@ export default function About() {
       <TeamCarousel />
       <style>{`
         @media (max-width: 640px) {
-          .card > div[style*="grid-template-columns: 220px"] {
+          .tk-team-slide {
             grid-template-columns: 1fr !important;
+            padding: 1.5rem !important;
+            gap: 1.25rem !important;
             text-align: center;
           }
+          .tk-team-photo {
+            width: 140px !important;
+            height: 140px !important;
+            font-size: 36px !important;
+          }
+          .tk-team-carousel-row {
+            gap: 0 !important;
+          }
+          .tk-team-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            padding: 8px !important;
+          }
+          .tk-team-arrow:first-child { left: -6px; }
+          .tk-team-arrow:last-child { right: -6px; }
         }
       `}</style>
 

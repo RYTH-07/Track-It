@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutGrid,
@@ -23,6 +23,8 @@ import {
   Mail,
   ClipboardList,
   GraduationCap,
+  Menu,
+  X,
 } from "lucide-react";
 import "./Navbar.css";
 
@@ -51,6 +53,7 @@ export default function Navbar({
   isProfessor = false,
 }) {
   const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navItems = isProfessor
     ? [
         { to: "/teacher", label: "Assign", icon: GraduationCap },
@@ -120,6 +123,13 @@ export default function Navbar({
         </div>
 
         <div className="tk-actions">
+          <button
+            className="tk-icon-btn tk-hamburger"
+            aria-label={drawerOpen ? "Close menu" : "Open menu"}
+            onClick={() => setDrawerOpen((v) => !v)}
+          >
+            {drawerOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
           <button className="tk-icon-btn" aria-label="Toggle theme" onClick={toggleDark}>
             {darkMode ? <Sun size={17} /> : <Moon size={17} />}
           </button>
@@ -142,8 +152,8 @@ export default function Navbar({
 
       <div className="tk-divider" />
 
-      {/* single nav row, no duplicates */}
-      <nav className="tk-nav">
+      {/* single nav row, no duplicates — desktop/tablet only, replaced by the drawer on mobile */}
+      <nav className="tk-nav tk-nav--desktop">
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -153,6 +163,35 @@ export default function Navbar({
             }
           >
             <Icon size={16} strokeWidth={2.2} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* mobile-only slide-in drawer nav */}
+      {drawerOpen && (
+        <div className="tk-drawer-backdrop" onClick={() => setDrawerOpen(false)} />
+      )}
+      <nav className={`tk-drawer ${drawerOpen ? "tk-drawer--open" : ""}`}>
+        <div className="tk-drawer-header">
+          <div className="tk-brand">
+            <div className="tk-brand-mark">T</div>
+            <span className="tk-brand-name">Track-It</span>
+          </div>
+          <button className="tk-icon-btn" aria-label="Close menu" onClick={() => setDrawerOpen(false)}>
+            <X size={18} />
+          </button>
+        </div>
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            onClick={() => setDrawerOpen(false)}
+            className={({ isActive }) =>
+              `tk-drawer-item ${isActive ? "tk-drawer-item--active" : ""}`
+            }
+          >
+            <Icon size={18} strokeWidth={2.2} />
             <span>{label}</span>
           </NavLink>
         ))}

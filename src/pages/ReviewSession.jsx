@@ -25,7 +25,7 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange, onAr
       <div className="relative min-h-screen flex flex-col justify-center px-4 py-8 sm:px-10">
         {currentProblem ? (
           <div className="relative mx-auto w-full max-w-5xl">
-            <div className="fixed top-1/2 left-6 -translate-y-1/2 z-50">
+            <div className="hidden sm:block fixed top-1/2 left-6 -translate-y-1/2 z-50">
               <button
                 type="button"
                 className="btn btn-ghost rounded-full p-3 disabled:opacity-40"
@@ -36,7 +36,7 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange, onAr
               </button>
             </div>
             <div
-              className="overflow-hidden rounded-[30px] p-6"
+              className="overflow-hidden rounded-[30px] p-3 sm:p-6"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <ReviewCard
@@ -47,7 +47,7 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange, onAr
                 onArchive={onArchive}
               />
             </div>
-            <div className="fixed top-1/2 right-6 -translate-y-1/2 z-50">
+            <div className="hidden sm:block fixed top-1/2 right-6 -translate-y-1/2 z-50">
               <button
                 type="button"
                 className="btn btn-ghost rounded-full p-3 disabled:opacity-40"
@@ -57,8 +57,29 @@ export default function ReviewSession({ dueProblems, onRate, onNotesChange, onAr
                 ›
               </button>
             </div>
-            <div className="mt-6 flex items-center justify-between text-sm" style={{ color: 'var(--text-secondary)' }}>
-              <div>{slideIndex + 1} / {sortedDue.length} review cards</div>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <div className="flex items-center gap-3 sm:hidden">
+                <button
+                  type="button"
+                  className="btn btn-ghost rounded-full px-3 py-2 disabled:opacity-40"
+                  disabled={prevDisabled}
+                  onClick={() => setSlideIndex((idx) => Math.max(0, idx - 1))}
+                  aria-label="Previous card"
+                >
+                  ‹
+                </button>
+                <div>{slideIndex + 1} / {sortedDue.length}</div>
+                <button
+                  type="button"
+                  className="btn btn-ghost rounded-full px-3 py-2 disabled:opacity-40"
+                  disabled={nextDisabled}
+                  onClick={() => setSlideIndex((idx) => Math.min(sortedDue.length - 1, idx + 1))}
+                  aria-label="Next card"
+                >
+                  ›
+                </button>
+              </div>
+              <div className="hidden sm:block">{slideIndex + 1} / {sortedDue.length} review cards</div>
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}
