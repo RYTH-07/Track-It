@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
-import { User, Save, LogOut } from 'lucide-react'
+import { User, Save, LogOut, Bell, BellOff } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { usePushNotifications } from '../hooks/usePushNotifications.js'
 
 export default function Profile({ user, profile, onUpdateDisplayName, onSignOut }) {
   const [name, setName]     = useState(profile?.display_name || '')
   const [saving, setSaving] = useState(false)
+  const { supported, permission, subscribed, loading, enable, disable } = usePushNotifications(user?.id)
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -16,6 +18,17 @@ export default function Profile({ user, profile, onUpdateDisplayName, onSignOut 
     if (error) toast.error(error.message)
     else toast.success('Display name updated!')
     setSaving(false)
+  }
+
+  const handleToggleNotifications = async () => {
+    if (subscribed) {
+      await disable()
+      toast('Reminders turned off', { icon: '🔕' })
+    } else {
+      const { error } = await enable()
+      if (error) toast.error(error)
+      else toast.success('Reminders enabled! 🔔')
+    }
   }
 
   return (
@@ -63,6 +76,32 @@ export default function Profile({ user, profile, onUpdateDisplayName, onSignOut 
             <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </form>
+
+        <hr style={{ borderColor: 'var(--border)' }} />
+
+        {/* Push notifications */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {subscribed ? <Bell size={16} style={{ color: 'var(--accent)' }} /> : <BellOff size={16} style={{ color: 'var(--text-muted)' }} />}
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Reminders</p>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                {!supported
+                  ? 'Not supported on this browser/device'
+                  : permission === 'denied'
+                  ? 'Blocked — enable notifications for this site in your browser settings'
+                  : 'Get notified about due reviews and pending assignments'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleToggleNotifications}
+            disabled={!supported || loading || permission === 'denied'}
+            className={`btn ${subscribed ? 'btn-ghost' : 'btn-primary'} px-3 py-2 text-sm shrink-0`}
+          >
+            {loading ? '...' : subscribed ? 'On' : 'Off'}
+          </button>
+        </div>
 
         <hr style={{ borderColor: 'var(--border)' }} />
 
