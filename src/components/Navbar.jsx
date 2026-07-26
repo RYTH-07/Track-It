@@ -70,6 +70,7 @@ export default function Navbar({
   const xp = stats?.xp ?? stats?.total_xp ?? 0;
 
   return (
+    <>
     <div className="tk-navbar">
       {/* top row: brand + stats + utility icons */}
       <div className="tk-topbar">
@@ -167,8 +168,14 @@ export default function Navbar({
           </NavLink>
         ))}
       </nav>
+    </div>
 
-      {/* mobile-only slide-in drawer nav */}
+      {/* mobile-only slide-in drawer nav — rendered OUTSIDE .tk-navbar deliberately:
+          .tk-navbar has backdrop-filter, which (like `filter`) creates a new
+          containing block for position:fixed descendants in modern browsers.
+          Nesting the drawer inside it clipped the fixed drawer to the navbar's
+          own (short) box instead of the full viewport — only the first couple
+          items that fit inside that sliver were ever visible. */}
       {drawerOpen && (
         <div className="tk-drawer-backdrop" onClick={() => setDrawerOpen(false)} />
       )}
@@ -196,6 +203,6 @@ export default function Navbar({
           </NavLink>
         ))}
       </nav>
-    </div>
+    </>
   );
 }
