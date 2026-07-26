@@ -3,6 +3,7 @@
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "crons": [
-    { "path": "/api/send-reminders", "schedule": "30 2 * * *" }
+    { "path": "/api/send-reminders", "schedule": "30 2 * * *" },
+    { "path": "/api/refresh-leetcode-stats", "schedule": "0 3 * * *" }
   ]
 }

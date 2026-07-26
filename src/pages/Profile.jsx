@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
-import { User, Save, LogOut, Bell, BellOff } from 'lucide-react'
+import { User, Save, LogOut, Bell, BellOff, Code2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePushNotifications } from '../hooks/usePushNotifications.js'
 
-export default function Profile({ user, profile, onUpdateDisplayName, onSignOut }) {
+export default function Profile({ user, profile, onUpdateDisplayName, onUpdateLeetCodeUsername, onSignOut }) {
   const [name, setName]     = useState(profile?.display_name || '')
   const [saving, setSaving] = useState(false)
+  const [leetcodeUsername, setLeetcodeUsername] = useState(profile?.leetcode_username || '')
+  const [savingLeetcode, setSavingLeetcode] = useState(false)
   const { supported, permission, subscribed, loading, enable, disable } = usePushNotifications(user?.id)
 
   const handleSave = async (e) => {
@@ -18,6 +20,15 @@ export default function Profile({ user, profile, onUpdateDisplayName, onSignOut 
     if (error) toast.error(error.message)
     else toast.success('Display name updated!')
     setSaving(false)
+  }
+
+  const handleSaveLeetcode = async (e) => {
+    e.preventDefault()
+    setSavingLeetcode(true)
+    const { error } = await onUpdateLeetCodeUsername(leetcodeUsername.trim())
+    setSavingLeetcode(false)
+    if (error) toast.error(error.message)
+    else toast.success(leetcodeUsername.trim() ? 'LeetCode username linked!' : 'LeetCode username removed')
   }
 
   const handleToggleNotifications = async () => {
@@ -74,6 +85,31 @@ export default function Profile({ user, profile, onUpdateDisplayName, onSignOut 
           </div>
           <button type="submit" disabled={saving || name.trim().length < 2} className="btn btn-primary w-full">
             <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </form>
+
+        <hr style={{ borderColor: 'var(--border)' }} />
+
+        {/* LeetCode linking */}
+        <form onSubmit={handleSaveLeetcode} className="space-y-3">
+          <div>
+            <label className="label" htmlFor="leetcode-username" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Code2 size={13} /> LeetCode Username
+            </label>
+            <input
+              id="leetcode-username"
+              type="text"
+              value={leetcodeUsername}
+              onChange={e => setLeetcodeUsername(e.target.value)}
+              className="input"
+              placeholder="Your LeetCode username"
+            />
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+              Links your public LeetCode stats to the LeetCode Leaderboard. Refreshes automatically once a day.
+            </p>
+          </div>
+          <button type="submit" disabled={savingLeetcode} className="btn btn-ghost w-full">
+            {savingLeetcode ? 'Saving...' : 'Save LeetCode Username'}
           </button>
         </form>
 

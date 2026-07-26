@@ -78,6 +78,18 @@ export function useAuth() {
     }
     return { data, error }
   }
+
+  const updateLeetCodeUsername = async (leetcodeUsername) => {
+    if (!user) return { error: { message: 'Not authenticated' } }
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ leetcode_username: leetcodeUsername || null })
+      .eq('user_id', user.id)
+      .select()
+      .single()
+    if (data) setProfile(data)
+    return { data, error }
+  }
   const resetPassword = async (email) => {
   const domain = email.split('@')[1]
   if (domain !== ALLOWED_DOMAIN) {
@@ -95,4 +107,4 @@ export function useAuth() {
 
   const isProfessor = !!user?.email && user.email.trim().toLowerCase() === PROFESSOR_EMAIL.trim().toLowerCase()
 
-return { user, profile, loading, needsOnboarding, isProfessor, signUp, signIn, signOut, updateDisplayName, refreshProfile, resetPassword }}
+return { user, profile, loading, needsOnboarding, isProfessor, signUp, signIn, signOut, updateDisplayName, updateLeetCodeUsername, refreshProfile, resetPassword }}

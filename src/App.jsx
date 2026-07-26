@@ -74,7 +74,7 @@ function AppInner() {
 
   // ── Auth ──
   const { user, profile, loading: authLoading, needsOnboarding, isProfessor,
-    signIn, signUp, signOut, updateDisplayName, resetPassword } = useAuth()
+    signIn, signUp, signOut, updateDisplayName, updateLeetCodeUsername, resetPassword } = useAuth()
 
   // ── Data hooks (only active when logged in) ──
   const {
@@ -280,6 +280,7 @@ function AppInner() {
                   user={user}
                   profile={profile}
                   onUpdateDisplayName={updateDisplayName}
+                  onUpdateLeetCodeUsername={updateLeetCodeUsername}
                   onSignOut={handleSignOut}
                 />
               } />
@@ -355,6 +356,7 @@ function AppInner() {
                   user={user}
                   profile={profile}
                   onUpdateDisplayName={updateDisplayName}
+                  onUpdateLeetCodeUsername={updateLeetCodeUsername}
                   onSignOut={handleSignOut}
                 />
               } />
