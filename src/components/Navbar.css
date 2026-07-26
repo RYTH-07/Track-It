@@ -7,7 +7,7 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 14px 22px 16px;
+  padding: calc(14px + env(safe-area-inset-top)) 22px 16px;
   border-radius: 0 0 20px 20px;
   overflow: hidden;
 
@@ -432,9 +432,37 @@
   .tk-actions { margin-left: 0; }
 }
 
-@media (max-width: 560px) {
-  .tk-nav-item span { display: none; }
-  .tk-nav-item { padding: 9px 10px; }
+@media (max-width: 640px) {
+  .tk-navbar { padding-left: 14px; padding-right: 14px; border-radius: 0 0 16px 16px; }
+
+  /* Full label set stays — swipe instead of losing context to icon-only. */
+  .tk-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+    margin: 0 -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    /* small fade hint that the strip scrolls */
+    mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+  .tk-nav::-webkit-scrollbar { display: none; }
+
+  .tk-nav-item {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+
+  .tk-icon-btn { width: 44px; height: 44px; }
+
+  .tk-brand-name { font-size: 15px; }
+  .tk-stat { padding: 6px 10px; font-size: 12px; }
 }
 /* ===== Track-It Navbar — LIGHT glass + golden ray shine ===== */
 /* Scoped under html.light so it only activates in light mode and overrides the dark theme rules. */

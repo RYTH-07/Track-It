@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
-import { today, getWeekStart, computeNewStreak, getRankFromXP, checkNewAchievements } from '../lib/helpers.js'
+import { today, getWeekStart, computeStreakWithFreeze, computeEarnedFreezes, getRankFromXP, checkNewAchievements, MAX_STREAK_FREEZES } from '../lib/helpers.js'
 import { DEFAULT_WEEKLY_GOAL, ACHIEVEMENTS } from '../lib/constants.js'
 import toast from 'react-hot-toast'
 
@@ -48,6 +48,7 @@ export function useStats(userId, problems, notebooks) {
         week_start: getWeekStart(today()),
         week_count: 0,
         unlocked_achievements: [],
+        streak_freezes: 0,
       }
       // upsert (not insert) so a concurrent duplicate-creating race is a
       // no-op instead of a second row, once user_id has a unique constraint.
@@ -68,10 +69,16 @@ export function useStats(userId, problems, notebooks) {
   const awardXP = useCallback(async (xpAmount) => {
     if (!userId || !stats) return
     const t = today()
-    const newStreak = computeNewStreak(stats.last_review_date, stats.streak)
+    const freezesHeld = stats.streak_freezes || 0
+    const { streak: newStreak, freezeUsed } = computeStreakWithFreeze(stats.last_review_date, stats.streak, freezesHeld)
     const newXP = (stats.xp || 0) + xpAmount
     const newWeekCount = (stats.week_count || 0) + 1
     const newLongest = Math.max(stats.longest_streak || 0, newStreak)
+    const remainingFreezes = freezeUsed ? freezesHeld - 1 : freezesHeld
+
+    if (freezeUsed) {
+      toast('❄️ Streak freeze used — your streak is safe!', { duration: 4000 })
+    }
 
     const prevRank = getRankFromXP(stats.xp || 0)
     const newRank = getRankFromXP(newXP)
@@ -86,6 +93,7 @@ export function useStats(userId, problems, notebooks) {
       longest_streak: newLongest,
       last_review_date: t,
       week_count: newWeekCount,
+      streak_freezes: remainingFreezes,
     }
 
     const newlyUnlocked = checkNewAchievements({
@@ -113,17 +121,39 @@ export function useStats(userId, problems, notebooks) {
         last_review_date: updatedStats.last_review_date,
         week_count: updatedStats.week_count,
         unlocked_achievements: updatedStats.unlocked_achievements,
+        streak_freezes: updatedStats.streak_freezes,
       })
       .eq('user_id', userId)
       .select()
 
-    if (!error && data?.length) {
-      // Merge DB result (has real trigger-updated xp) with local computed fields
-      setStats({ ...updatedStats, xp: data[0].xp })
-    } else if (error) {
+    if (error) {
       console.error('[useStats] awardXP update failed:', error)
+      return { data: null, error }
     }
-    return { data: data?.[0], error }
+
+    // data[0].xp reflects the SQL trigger's real award — use it (not our
+    // locally-guessed newXP) to decide whether a streak freeze was earned.
+    const confirmedXP = data?.[0]?.xp ?? updatedStats.xp
+    const earned = computeEarnedFreezes(stats.xp || 0, confirmedXP, remainingFreezes)
+    let finalFreezes = remainingFreezes
+
+    if (earned > 0) {
+      finalFreezes = remainingFreezes + earned
+      const { data: freezeData, error: freezeError } = await supabase
+        .from('user_stats')
+        .update({ streak_freezes: finalFreezes })
+        .eq('user_id', userId)
+        .select()
+      if (freezeError) {
+        console.error('[useStats] streak freeze grant failed:', freezeError)
+        finalFreezes = remainingFreezes // DB write failed, don't claim we have it
+      } else {
+        toast(`❄️ Earned a streak freeze! (${finalFreezes}/${MAX_STREAK_FREEZES} held)`, { duration: 4000 })
+      }
+    }
+
+    setStats({ ...updatedStats, xp: confirmedXP, streak_freezes: finalFreezes })
+    return { data: data?.[0], error: null }
   }, [userId, stats, problems, notebooks])
 
   const updateWeeklyGoal = useCallback(async (goal) => {

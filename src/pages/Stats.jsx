@@ -7,7 +7,8 @@ import {
   CheckCircle2,
   Clock,
   Star,
-  Target
+  Target,
+  Snowflake
 } from 'lucide-react'
 import ActivityHeatmap from '../components/ActivityHeatmap.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
@@ -19,6 +20,7 @@ export default function Stats({ problems, stats, activityMap, onFetchActivity })
   const xp = stats?.xp || 0
   const streak = stats?.streak || 0
   const longest = stats?.longest_streak || 0
+  const freezes = stats?.streak_freezes || 0
   const { pct, current: rank, next, xpIntoRank, xpNeeded } = getXPProgress(xp)
 
   const totalSolved   = problems.length
@@ -70,6 +72,13 @@ const weeklyPct = Math.min(
             <div className="text-5xl font-bold mb-1" style={{ color: '#F97316', fontFamily: 'JetBrains Mono,monospace' }}>{streak}</div>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               day streak 🔥 · best: {longest}d
+            </p>
+            <p
+              className="text-xs mt-1 flex items-center justify-center gap-1"
+              style={{ color: 'var(--text-muted)' }}
+              title="Auto-protects your streak if you miss one day. Earn 1 every 500 XP, up to 3 held."
+            >
+              <Snowflake size={12} /> {freezes} freeze{freezes === 1 ? '' : 's'} held
             </p>
           </div>
           <div className="space-y-2">

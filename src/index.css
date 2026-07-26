@@ -49,6 +49,7 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
@@ -174,6 +175,7 @@ html.light .card {
     justify-content: center;
     gap: 6px;
     padding: 8px 16px;
+    min-height: 44px; /* Apple/Material minimum comfortable tap target */
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
@@ -212,7 +214,7 @@ html.light .card {
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 10px 14px;
-    font-size: 14px;
+    font-size: 16px; /* iOS Safari zooms the viewport on focus if this is <16px */
     color: var(--text-primary);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     font-family: 'Inter', sans-serif;

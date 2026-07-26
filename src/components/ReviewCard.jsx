@@ -132,7 +132,7 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange, onArch
   );
 
   return (
-    <div className="card-glass rounded-[24px] p-6">
+    <div className="card-glass rounded-[24px] p-4 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -197,7 +197,7 @@ export default function ReviewCard({ problem = {}, onRate, onNotesChange, onArch
         </div>
       </div>
 
-      <div className="card-glass-inner mt-6 rounded-3xl p-5">
+      <div className="card-glass-inner mt-6 rounded-3xl p-3 sm:p-5">
         <div className="space-y-5">
           <div>
             <div className="flex items-center justify-between gap-4">

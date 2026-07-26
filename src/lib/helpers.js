@@ -232,3 +232,31 @@ export function computeNewStreak(lastReviewDate, currentStreak) {
   if (diff === 1) return currentStreak + 1 // consecutive day
   return 1 // streak broken
 }
+
+// ─── Streak freeze helpers ─────────────────────────────────────────────────────
+export const MAX_STREAK_FREEZES = 3
+export const XP_PER_STREAK_FREEZE = 500
+
+/**
+ * Same as computeNewStreak, but spends one freeze (if available) to bridge
+ * exactly one missed day instead of resetting the streak. A freeze never
+ * covers more than one missed day at a time — 2+ missed days always break
+ * the streak regardless of freezes held.
+ * Returns { streak, freezeUsed }.
+ */
+export function computeStreakWithFreeze(lastReviewDate, currentStreak, freezesAvailable) {
+  const t = today()
+  if (!lastReviewDate) return { streak: 1, freezeUsed: false }
+  const diff = daysBetween(lastReviewDate, t)
+  if (isSameDay(lastReviewDate, t)) return { streak: currentStreak, freezeUsed: false }
+  if (diff === 1) return { streak: currentStreak + 1, freezeUsed: false }
+  if (diff === 2 && freezesAvailable > 0) return { streak: currentStreak + 1, freezeUsed: true }
+  return { streak: 1, freezeUsed: false }
+}
+
+/** How many new freezes to grant for going from oldXP to newXP, given currently held. */
+export function computeEarnedFreezes(oldXP, newXP, currentlyHeld) {
+  const earned = Math.floor(newXP / XP_PER_STREAK_FREEZE) - Math.floor(oldXP / XP_PER_STREAK_FREEZE)
+  if (earned <= 0) return 0
+  return Math.max(0, Math.min(earned, MAX_STREAK_FREEZES - currentlyHeld))
+}
