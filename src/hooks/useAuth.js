@@ -22,16 +22,31 @@ export function useAuth() {
   }, [])
 
   useEffect(() => {
-    // Get initial session
+    let settled = false
+    const finishLoading = () => {
+      if (!settled) {
+        settled = true
+        setLoading(false)
+      }
+    }
+
+    // Primary path: read the current session once on mount.
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user) {
         await fetchProfile(session.user.id)
       }
-      setLoading(false)
+      finishLoading()
+    }).catch(() => {
+      finishLoading()
     })
 
-    // Listen for auth changes
+    // Listen for auth changes. onAuthStateChange also fires once on setup
+    // (INITIAL_SESSION), which acts as a second, independent path to
+    // unblock loading if getSession() above ever hangs — a known
+    // supabase-js issue where getSession() can wait indefinitely on the
+    // browser's Web Locks API in some multi-tab/stale-session cases,
+    // which matches "site is stuck loading until I refresh."
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
@@ -40,9 +55,17 @@ export function useAuth() {
         setProfile(null)
         setNeedsOnboarding(false)
       }
+      finishLoading()
     })
 
-    return () => subscription.unsubscribe()
+    // Absolute safety net: never let the loading screen hang forever even
+    // if both paths above stall.
+    const timeoutId = setTimeout(finishLoading, 8000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeoutId)
+    }
   }, [fetchProfile])
 
   const signUp = async (email, password) => {
