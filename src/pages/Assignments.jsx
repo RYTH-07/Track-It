@@ -7,9 +7,12 @@ export default function Assignments({ myAssignments = [], loading }) {
   const navigate = useNavigate()
   const [tab, setTab] = useState('current')
 
-  const pending = myAssignments.filter(a => a.status === 'pending')
-  const completed = myAssignments.filter(a => a.status === 'completed')
-  const visible = tab === 'current' ? pending : completed
+  const today = new Date().toISOString().split('T')[0]
+  const isOverdue = (row) => row.status === 'pending' && row.assignments?.due_date && row.assignments.due_date < today
+
+  const pending = myAssignments.filter(a => a.status === 'pending' && !isOverdue(a))
+  const past = myAssignments.filter(a => a.status === 'completed' || isOverdue(a))
+  const visible = tab === 'current' ? pending : past
 
   const solveAssignment = (progressRow) => {
     const a = progressRow.assignments
@@ -31,7 +34,7 @@ export default function Assignments({ myAssignments = [], loading }) {
           <ClipboardList size={20} style={{ color: 'var(--accent)' }} /> Assigned by Professor
         </h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-          {pending.length} pending · {completed.length} completed
+          {pending.length} pending · {past.length} past
         </p>
       </div>
 
@@ -53,7 +56,7 @@ export default function Assignments({ myAssignments = [], loading }) {
             onClick={() => setTab('past')}
             className={`btn ${tab === 'past' ? 'btn-primary' : 'btn-ghost'} btn-sm`}
           >
-            Past <span style={{ opacity: 0.75 }}>({completed.length})</span>
+            Past <span style={{ opacity: 0.75 }}>({past.length})</span>
           </button>
         </div>
       )}
@@ -71,7 +74,7 @@ export default function Assignments({ myAssignments = [], loading }) {
         <div className="text-center py-16">
           <div className="text-4xl mb-3">{tab === 'current' ? '🎉' : '🗂️'}</div>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            {tab === 'current' ? "You're all caught up — nothing pending right now." : 'Nothing completed yet.'}
+            {tab === 'current' ? "You're all caught up — nothing pending right now." : 'Nothing here yet — completed and past-due assignments will show up here.'}
           </p>
         </div>
       ) : (
