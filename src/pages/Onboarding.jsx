@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { ChevronRight, User } from 'lucide-react'
+import { ChevronRight, User, Code2 } from 'lucide-react'
 
-export default function Onboarding({ onSubmit }) {
+export default function Onboarding({ onSubmit, onSubmitLeetCode }) {
   const [name, setName] = useState('')
+  const [leetcodeUsername, setLeetcodeUsername] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -13,7 +14,12 @@ export default function Onboarding({ onSubmit }) {
     if (trimmed.length > 20) { setError('Display name must be 20 characters or less.'); return }
     setLoading(true)
     const { error: err } = await onSubmit(trimmed)
-    if (err) { setError(err.message); setLoading(false) }
+    if (err) { setError(err.message); setLoading(false); return }
+    // LeetCode username is optional — best-effort, doesn't block onboarding if it fails
+    const trimmedLeetcode = leetcodeUsername.trim()
+    if (trimmedLeetcode && onSubmitLeetCode) {
+      await onSubmitLeetCode(trimmedLeetcode)
+    }
   }
 
   return (
@@ -49,6 +55,23 @@ export default function Onboarding({ onSubmit }) {
             />
             <p className="text-xs mt-1.5 text-right" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono,monospace' }}>
               {name.trim().length}/20
+            </p>
+          </div>
+
+          <div>
+            <label className="label" htmlFor="leetcode-username" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Code2 size={13} /> LeetCode Username <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span>
+            </label>
+            <input
+              id="leetcode-username"
+              type="text"
+              value={leetcodeUsername}
+              onChange={e => setLeetcodeUsername(e.target.value)}
+              className="input text-center"
+              placeholder="e.g. rythan07"
+            />
+            <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
+              Links your public LeetCode stats to the leaderboard. You can add or change this later from your profile.
             </p>
           </div>
 

@@ -237,7 +237,7 @@ function AppInner() {
 
   // ── Onboarding ──
   if (needsOnboarding) {
-    return <Onboarding onSubmit={updateDisplayName} />
+    return <Onboarding onSubmit={updateDisplayName} onSubmitLeetCode={updateLeetCodeUsername} />
   }
 
   // ── Authenticated app ──

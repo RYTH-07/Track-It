@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ExternalLink, CheckCircle2, Clock } from 'lucide-react'
 import TopicTag from '../components/TopicTag.jsx'
 
 export default function Assignments({ myAssignments = [], loading }) {
   const navigate = useNavigate()
+  const [tab, setTab] = useState('current')
 
   const pending = myAssignments.filter(a => a.status === 'pending')
   const completed = myAssignments.filter(a => a.status === 'completed')
+  const visible = tab === 'current' ? pending : completed
 
   const solveAssignment = (progressRow) => {
     const a = progressRow.assignments
@@ -33,6 +35,29 @@ export default function Assignments({ myAssignments = [], loading }) {
         </p>
       </div>
 
+      {myAssignments.length > 0 && (
+        <div className="flex gap-2 mb-5" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'current'}
+            onClick={() => setTab('current')}
+            className={`btn ${tab === 'current' ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+          >
+            Current <span style={{ opacity: 0.75 }}>({pending.length})</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'past'}
+            onClick={() => setTab('past')}
+            className={`btn ${tab === 'past' ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+          >
+            Past <span style={{ opacity: 0.75 }}>({completed.length})</span>
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p>
       ) : myAssignments.length === 0 ? (
@@ -42,24 +67,22 @@ export default function Assignments({ myAssignments = [], loading }) {
             Nothing assigned yet. Check back after your next class.
           </p>
         </div>
+      ) : visible.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="text-4xl mb-3">{tab === 'current' ? '🎉' : '🗂️'}</div>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            {tab === 'current' ? "You're all caught up — nothing pending right now." : 'Nothing completed yet.'}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-4">
-          {pending.length > 0 && (
-            <div className="space-y-2">
-              <div className="section-header">Pending</div>
-              {pending.map(row => (
-                <AssignmentCard key={row.id} row={row} onSolve={() => solveAssignment(row)} />
-              ))}
-            </div>
-          )}
-          {completed.length > 0 && (
-            <div className="space-y-2 mt-6">
-              <div className="section-header">Completed</div>
-              {completed.map(row => (
-                <AssignmentCard key={row.id} row={row} />
-              ))}
-            </div>
-          )}
+        <div className="space-y-2">
+          {visible.map(row => (
+            <AssignmentCard
+              key={row.id}
+              row={row}
+              onSolve={tab === 'current' ? () => solveAssignment(row) : undefined}
+            />
+          ))}
         </div>
       )}
     </div>
